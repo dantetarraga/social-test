@@ -1,6 +1,7 @@
 import { AuthService } from '@/service'
 import SocialConnectionService from '@/service/social-connection.service'
 import { Request, Response } from 'express'
+import { success } from 'zod'
 
 const authService = new AuthService()
 const socialConnectionService = new SocialConnectionService()
@@ -52,6 +53,23 @@ class AuthController {
     })
   }
 
+  static async generateUrlToTikTok(req: Request, res: Response): Promise<Response> {
+    const { profileId } = req.body
+
+    let csrfState = Math.random().toString(36).substring(2)
+    csrfState += `-${profileId}`
+
+    const redirectUrl = authService.getTikTokAuthUrl(csrfState)
+
+    return res
+      .status(200)
+      .json({
+        success: true,
+        data: redirectUrl,
+        message: 'Redirect URL generated successfully',
+      })
+  }
+
   static async tiktokLogin(req: Request, res: Response): Promise<void> {
     const { profileId } = req.body
 
@@ -59,6 +77,8 @@ class AuthController {
     csrfState += `-${profileId}`
 
     res.cookie('csrfState', csrfState, { maxAge: 60000 })
+
+    // console.log(`CSRF State: ${csrfState}`)
 
     const redirectUrl = authService.getTikTokAuthUrl(csrfState)
     return res.redirect(redirectUrl)
@@ -68,14 +88,16 @@ class AuthController {
     const { code, state } = req.query as { code: string; state: string }
     const profileId = state.split('-')[1]
 
-    console.log(`Profile ID: ${profileId}`)
+    // console.log(`Profile ID: ${profileId}`)
 
-    // const response = await authService.tiktokCallback(code as string)
+    const response = await authService.tiktokCallback(code as string)
+    console.log(response)
 
-    // await socialConnectionService.saveConnectionToTikTok(
-    //   Number(profileId),
-    //   response
-    // )
+
+    await socialConnectionService.saveConnectionToTikTok(
+      Number(profileId),
+      response
+    )
 
     return res.status(200).json({
       success: true,
