@@ -8,5 +8,5 @@ export const generateToken = (payload: object, expiresIn: string = EXPIRATION): 
 }
 
 export const verifyToken = (token: string) => {
-  return jwt.verify(token, SECRET) as { id: string; email: string; fullName?: string };
+  return jwt.verify(token, SECRET) as { id: number; email: string; fullName?: string };
 }
