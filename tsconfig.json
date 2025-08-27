@@ -7,10 +7,10 @@
     "allowSyntheticDefaultImports": true,
 
     "sourceMap": true,
-    "outDir": "./dist",
+    "outDir": "dist",
     "lib": ["esnext"],
     "allowJs": true,
-    "rootDir": "./src",
+    "rootDir": "src",
 
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -24,5 +24,5 @@
     "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "exclude": ["node_modules", "dist"],
-  "include": ["src/**/*.ts", "tests/**/*.spec.ts"]
+  "include": ["src/**/*.ts", "src"]
 }
