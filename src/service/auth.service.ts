@@ -13,11 +13,7 @@ import {
 } from '@/helpers'
 
 import { AuthResponse } from '@/types'
-import {
-  LoginDTO,
-  RegisterDTO,
-  ResetPasswordDTO,
-} from '@/schema'
+import { LoginDTO, RegisterDTO, ResetPasswordDTO } from '@/schema'
 
 class AuthService {
   private userRepo: Repository<User>
@@ -86,7 +82,8 @@ class AuthService {
 
     const result = await sendRecoveryEmail(user.email, token)
     console.log(result)
-    if (!result.success) throw Boom.internal('Error al enviar el correo de recuperación')
+    if (!result.success)
+      throw Boom.internal('Error al enviar el correo de recuperación')
   }
 
   async resetPassword(resetData: ResetPasswordDTO): Promise<void> {
@@ -102,6 +99,48 @@ class AuthService {
 
     user.password = await hashPassword(resetData.password)
     await this.userRepo.save(user)
+  }
+
+  static getTikTokAuthUrl(state: string): string {
+    const CLIENT_KEY = process.env.TIKTOK_CLIENT_KEY!
+    const REDIRECT_URI = process.env.TIKTOK_REDIRECT_URI!
+
+    const URL_AUTH_TIKTOK = 'https://www.tiktok.com/v2/auth/authorize/'
+    const SCOPE = 'user.info.basic'
+
+    let redirectUrl = `${URL_AUTH_TIKTOK}`
+    redirectUrl += `?client_key=${CLIENT_KEY}`
+    redirectUrl += `&scope=${SCOPE}`
+    redirectUrl += `&response_type=code`
+    redirectUrl += `&redirect_uri=${REDIRECT_URI}`
+    redirectUrl += `&state=${state}`
+
+    return redirectUrl
+  }
+
+  static async tiktokCallback(code: string): Promise<void> {
+    const response = await fetch(
+      'https://open.tiktokapis.com/v2/oauth/token/',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Cache-Control': 'no-cache',
+        },
+        body: new URLSearchParams({
+          client_key: process.env.TIKTOK_CLIENT_KEY!,
+          client_secret: process.env.TIKTOK_CLIENT_SECRET!,
+          code,
+          grant_type: 'authorization_code',
+          redirect_uri: process.env.TIKTOK_REDIRECT_URI!,
+        }),
+      }
+    )
+
+    const data = await response.json()
+
+    console.log(data)
+    // Aquí puedes manejar el token de acceso de TikTok
   }
 }
 

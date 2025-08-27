@@ -46,6 +46,19 @@ class AuthController {
       message: 'Contraseña restablecida exitosamente',
     })
   }
+
+  static async tiktokLogin(req: Request, res: Response): Promise<void> {
+    const csrfState = Math.random().toString(36).substring(2);
+    res.cookie('csrfState', csrfState, { maxAge: 60000 });
+
+    const redirectUrl = AuthService.getTikTokAuthUrl(csrfState);
+    return res.redirect(redirectUrl);
+  }
+
+  static async tiktokCallback(req: Request, res: Response): Promise<void> {
+    const { code } = req.query;
+    await AuthService.tiktokCallback(code as string);
+  }
 }
 
 export default AuthController
