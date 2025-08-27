@@ -39,7 +39,7 @@ authRouter.post(
   AuthController.resetPassword
 )
 
-const CLIENT_KEY = process.env.TIKTOK_CLIENT_ID!;
+const CLIENT_KEY = process.env.TIKTOK_CLIENT_KEY!;
 const CLIENT_SECRET = process.env.TIKTOK_CLIENT_SECRET!;
 const REDIRECT_URI = "http://localhost:3000/auth/tiktok/callback"; // cambia según tu dominio
 
