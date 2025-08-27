@@ -53,14 +53,6 @@ class AuthController {
   }
 
   static async tiktokLogin(req: Request, res: Response): Promise<void> {
-    const { id } = req.params
-    res.cookie('profileId', id, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'lax',
-      maxAge: 5 * 60 * 1000,
-    })
-
     const csrfState = Math.random().toString(36).substring(2)
     res.cookie('csrfState', csrfState, { maxAge: 60000 })
 
