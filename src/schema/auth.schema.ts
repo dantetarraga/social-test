@@ -30,8 +30,4 @@ export const resetPasswordSchema = z.object({
     .min(6, 'La contraseña debe tener mínimo 6 caracteres'),
 })
 
-export type RegisterDTO = z.infer<typeof registerSchema>
-export type LoginDTO = z.infer<typeof loginSchema>
 
-export type RecoveryEmailDTO = z.infer<typeof recoveryEmailSchema>
-export type ResetPasswordDTO = z.infer<typeof resetPasswordSchema>

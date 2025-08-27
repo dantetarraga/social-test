@@ -1,6 +1,6 @@
 import Boom from '@hapi/boom'
 
-import { User } from '@/models'
+import { SocialType, User } from '@/models'
 import { Repository } from 'typeorm'
 import { AppDataSource } from '@/config/database'
 
@@ -12,8 +12,14 @@ import {
   sendRecoveryEmail,
 } from '@/helpers'
 
-import { AuthResponse } from '@/types'
-import { LoginDTO, RegisterDTO, ResetPasswordDTO } from '@/schema'
+import {
+  AuthResponse,
+  LoginDTO,
+  RegisterDTO,
+  ResetPasswordDTO,
+  SocialConnectionDTO,
+  TikTokAuthResponse,
+} from '@/types'
 
 class AuthService {
   private userRepo: Repository<User>
@@ -101,7 +107,7 @@ class AuthService {
     await this.userRepo.save(user)
   }
 
-  static getTikTokAuthUrl(state: string): string {
+  getTikTokAuthUrl(state: string): string {
     const CLIENT_KEY = process.env.TIKTOK_CLIENT_KEY!
     const REDIRECT_URI = process.env.TIKTOK_REDIRECT_URI!
 
@@ -118,7 +124,7 @@ class AuthService {
     return redirectUrl
   }
 
-  static async tiktokCallback(code: string): Promise<void> {
+  async tiktokCallback(code: string): Promise<SocialConnectionDTO> {
     const response = await fetch(
       'https://open.tiktokapis.com/v2/oauth/token/',
       {
@@ -137,10 +143,18 @@ class AuthService {
       }
     )
 
-    const data = await response.json()
+    if (!response.ok) throw Boom.internal('Error obtaining TikTok token')
+    const data = (await response.json()) as TikTokAuthResponse
 
-    console.log(data)
-    // Aquí puedes manejar el token de acceso de TikTok
+    return {
+      socialType: SocialType.TIKTOK,
+      socialAccountId: data.open_id,
+      token: data.access_token,
+      expires: new Date(Date.now() + data.expires_in * 1000),
+      refreshToken: data.refresh_token,
+      refreshExpires: new Date(Date.now() + data.refresh_expires_in * 1000),
+      scope: data.scope,
+    }
   }
 }
 

@@ -1,7 +1,9 @@
 import { AuthService } from '@/service'
+import SocialConnectionService from '@/service/social-connection.service'
 import { Request, Response } from 'express'
 
 const authService = new AuthService()
+const socialConnectionService = new SocialConnectionService()
 
 class AuthController {
   static async login(req: Request, res: Response): Promise<Response> {
@@ -26,7 +28,10 @@ class AuthController {
     })
   }
 
-  static async notifyResetPassword(req: Request, res: Response): Promise<Response> {
+  static async notifyResetPassword(
+    req: Request,
+    res: Response
+  ): Promise<Response> {
     const { email } = req.body
     await authService.notifyResetPassword(email)
 
@@ -38,7 +43,7 @@ class AuthController {
 
   static async resetPassword(req: Request, res: Response): Promise<Response> {
     const { password, token } = req.body
-    
+
     await authService.resetPassword({ token, password })
 
     return res.status(200).json({
@@ -48,16 +53,36 @@ class AuthController {
   }
 
   static async tiktokLogin(req: Request, res: Response): Promise<void> {
-    const csrfState = Math.random().toString(36).substring(2);
-    res.cookie('csrfState', csrfState, { maxAge: 60000 });
+    const { id } = req.params
+    res.cookie('profileId', id, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      maxAge: 5 * 60 * 1000,
+    })
 
-    const redirectUrl = AuthService.getTikTokAuthUrl(csrfState);
-    return res.redirect(redirectUrl);
+    const csrfState = Math.random().toString(36).substring(2)
+    res.cookie('csrfState', csrfState, { maxAge: 60000 })
+
+    const redirectUrl = authService.getTikTokAuthUrl(csrfState)
+    return res.redirect(redirectUrl)
   }
 
-  static async tiktokCallback(req: Request, res: Response): Promise<void> {
-    const { code } = req.query;
-    await AuthService.tiktokCallback(code as string);
+  static async tiktokCallback(req: Request, res: Response): Promise<Response> {
+    const { code } = req.query
+    const { id: profileId } = req.params
+    const response = await authService.tiktokCallback(code as string)
+
+    await socialConnectionService.saveConnectionToTikTok(
+      Number(profileId),
+      response
+    )
+
+    return res.status(200).json({
+      success: true,
+      data: response,
+      message: 'TikTok login successful',
+    })
   }
 }
 
