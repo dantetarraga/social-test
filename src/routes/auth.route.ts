@@ -53,6 +53,8 @@ authRouter.get('/tiktok/login', (req, res) => {
 
     let url = 'https://www.tiktok.com/v2/auth/authorize/';
 
+    console.log("Authorization URL:", CLIENT_KEY);
+
     // the following params need to be in `application/x-www-form-urlencoded` format.
     url += `?client_key=${CLIENT_KEY}`;
     url += `&scope=user.info.basic`;
