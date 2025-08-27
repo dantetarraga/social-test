@@ -41,7 +41,7 @@ authRouter.post(
 
 const CLIENT_KEY = process.env.TIKTOK_CLIENT_KEY!;
 const CLIENT_SECRET = process.env.TIKTOK_CLIENT_SECRET!;
-const REDIRECT_URI = "http://localhost:3000/auth/tiktok/callback"; // cambia según tu dominio
+const REDIRECT_URI = "https://social-test-eqq4.onrender.com/api/auth/tiktok/callback"; // cambia según tu dominio
 
 // Tik tok
 authRouter.get("/tiktok/login", (req: Request, res: Response) => {
@@ -50,4 +50,11 @@ authRouter.get("/tiktok/login", (req: Request, res: Response) => {
   )}&state=xyz123`; // "state" para evitar CSRF
   res.redirect(authUrl);
 });
+
+authRouter.get("/tiktok/callback", (req: Request, res: Response) => {
+  const { code } = req.query;
+  // Aquí manejarías el intercambio del código por un token de acceso
+  res.send("Callback de TikTok");
+});
+
 export default authRouter
