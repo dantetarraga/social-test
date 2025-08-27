@@ -101,7 +101,7 @@ class AuthController {
 
     return res.status(200).json({
       success: true,
-      data: profileId,
+      data: response,
       message: 'TikTok login successful',
     })
   }
