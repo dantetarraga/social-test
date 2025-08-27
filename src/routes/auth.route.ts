@@ -36,7 +36,7 @@ authRouter.post(
   AuthController.resetPassword
 )
 
-authRouter.get('/tiktok/:id', AuthController.tiktokLogin)
+authRouter.get('/tiktok', AuthController.tiktokLogin)
 
 authRouter.get('/tiktok/callback', AuthController.tiktokCallback)
 
