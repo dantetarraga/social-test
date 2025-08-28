@@ -72,9 +72,11 @@ class AuthController {
 
   static async tiktokLogin(req: Request, res: Response): Promise<void> {
     const { profileId } = req.body
+    const { id } = req.user!
 
     let csrfState = Math.random().toString(36).substring(2)
     csrfState += `-${profileId}`
+    csrfState += `-${id}`
 
     res.cookie('csrfState', csrfState, { maxAge: 60000 })
 
@@ -87,15 +89,15 @@ class AuthController {
   static async tiktokCallback(req: Request, res: Response): Promise<Response> {
     const { code, state } = req.query as { code: string; state: string }
     const profileId = state.split('-')[1]
+    const userId = state.split('-')[2]
 
     // console.log(`Profile ID: ${profileId}`)
 
     const response = await authService.tiktokCallback(code as string)
-    console.log(response)
-
 
     await socialConnectionService.saveConnectionToTikTok(
       Number(profileId),
+      Number(userId),
       response
     )
 
