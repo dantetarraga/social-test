@@ -38,4 +38,10 @@ profileRouter.put(
   ProfileController.editProfile
 )
 
+profileRouter.get(
+  '/:id/connections',
+  authenticateToken,
+  ProfileController.getProfileConnections
+)
+
 export default profileRouter

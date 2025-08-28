@@ -1,6 +1,6 @@
 import { Repository } from "typeorm"
 
-import { Profile, User } from "@/models"
+import { Profile, SocialConnection, User } from "@/models"
 import { AppDataSource } from "@/config/database"
 
 import Boom from "@hapi/boom"
@@ -42,17 +42,31 @@ class ProfileService {
   }
 
   async listProfiles(userId: number): Promise<Profile[]> {
-    const user = await this.userRepo.findOne({ where: { id: userId }, relations: ['profiles'] })
+    const user = await this.userRepo.findOne({ where: { id: userId }, relations: ['profiles', 'profiles.connections'] })
     if (!user) throw Boom.notFound('User not found')
 
     return user.profiles
   }
 
-  async getProfile(userId: number, profileId: number): Promise<Profile> {
-    const profile = await this.profileRepo.findOneBy({ id: profileId, user: { id: userId } })
+  async getProfileById(userId: number, profileId: number): Promise<Profile> {
+    const profile = await this.profileRepo.findOne({
+      where: { id: profileId, user: { id: userId } },
+      relations: ['connections']
+    })
     if (!profile) throw Boom.notFound('Profile not found')
 
     return profile
+  }
+
+  async getProfileConnections(userId: number, profileId: number): Promise<SocialConnection[]> {
+    console.log("Fetching profile connections...")
+    const profile = await this.profileRepo.findOne({
+      where: { id: profileId, user: { id: userId } },
+      relations: ['connections']
+    })
+
+    if (!profile) throw Boom.notFound('Profile not found')
+    return profile.connections
   }
 }
 

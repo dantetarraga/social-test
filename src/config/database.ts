@@ -13,4 +13,7 @@ export const AppDataSource = new DataSource({
   logging: true,
   entities: [__dirname + '/../**/*.model.{ts,js}'],
   migrations: [__dirname + '/../migrations/*.{ts,js}'],
+  ssl: {
+    rejectUnauthorized: false
+  }
 })

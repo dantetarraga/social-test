@@ -52,11 +52,22 @@ class ProfileController {
     const user = req.user
     const profileId = parseInt(req.params.id)
 
-    const response = await profileService.getProfile(user!.id, profileId)
+    const response = await profileService.getProfileById(user!.id, profileId)
 
     return res
       .status(200)
       .json({ success: true , message: 'Profile retrieved successfully', data: response })
+  }
+
+  static async getProfileConnections(req: Request, res: Response): Promise<Response> {
+    const user = req.user
+    const profileId = parseInt(req.params.id)
+
+    const response = await profileService.getProfileConnections(user!.id, profileId)
+
+    return res
+      .status(200)
+      .json({ success: true , message: 'Profile connections retrieved successfully', data: response })
   }
 }
 
