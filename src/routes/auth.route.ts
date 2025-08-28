@@ -1,7 +1,7 @@
 import { Router } from 'express'
 
 import { AuthController } from '@/controllers'
-import { validateSchema } from '@/middleware'
+import { authenticateToken, validateSchema } from '@/middleware'
 
 import {
   loginSchema,
@@ -36,8 +36,8 @@ authRouter.post(
   AuthController.resetPassword
 )
 
-// TikTok routesW
-authRouter.get('/tiktok/callback', AuthController.tiktokCallback)
+// TikTok routes
+authRouter.get('/tiktok/callback', authenticateToken, AuthController.tiktokCallback)
 authRouter.post('/tiktok', AuthController.tiktokLogin)
 authRouter.post('/tiktok/generate-url', AuthController.generateUrlToTikTok)
 
