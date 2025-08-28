@@ -33,7 +33,10 @@ class SocialConnectionService {
     return savedConnection
   }
 
-  async saveConnectionToFacebook(accessToken: string): Promise<void> {}
+  async saveConnectionToFacebook(profileId: number, data: SocialConnectionDTO): Promise<void> {
+    console.log("Data de facebook -...", data)
+    return
+  }
 
   async saveConnectionToInstagram(accessToken: string): Promise<void> {}
 }

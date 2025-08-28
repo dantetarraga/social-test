@@ -14,6 +14,7 @@ import {
 
 import {
   AuthResponse,
+  FacebookAuthResponse,
   LoginDTO,
   RegisterDTO,
   ResetPasswordDTO,
@@ -153,6 +154,55 @@ class AuthService {
       expires: new Date(Date.now() + data.expires_in * 1000),
       refreshToken: data.refresh_token,
       refreshExpires: new Date(Date.now() + data.refresh_expires_in * 1000),
+      scope: data.scope,
+    }
+  }
+
+  async getFacebookAuthUrl(state: string): Promise<string> {
+    const APP_ID = process.env.FACEBOOK_APP_ID!
+    const REDIRECT_URI = process.env.FACEBOOK_REDIRECT_URI!
+
+    const URL_AUTH_FACEBOOK = 'https://www.facebook.com/v12.0/dialog/oauth'
+    const SCOPE = 'email,public_profile,pages_show_list,pages_manage_posts'
+
+    let redirectUrl = `${URL_AUTH_FACEBOOK}`
+    redirectUrl += `?client_id=${APP_ID}`
+    redirectUrl += `&redirect_uri=${REDIRECT_URI}`
+    redirectUrl += `&scope=${SCOPE}`
+    redirectUrl += `&state=${state}`
+
+    return redirectUrl
+  }
+
+  async facebookCallback(code: string): Promise<SocialConnectionDTO> {
+    const response = await fetch(
+      'https://graph.facebook.com/v12.0/oauth/access_token',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Cache-Control': 'no-cache',
+        },
+        body: new URLSearchParams({
+          client_id: process.env.FACEBOOK_APP_ID!,
+          client_secret: process.env.FACEBOOK_APP_SECRET!,
+          code,
+          redirect_uri: process.env.FACEBOOK_REDIRECT_URI!,
+        }),
+      }
+    )
+
+    if (!response.ok) throw Boom.internal('Error obtaining Facebook token')
+    const data = (await response.json()) as FacebookAuthResponse
+
+    console.log(data)
+
+    return {
+      socialType: SocialType.FACEBOOK,
+      socialAccountId: data.id,
+      token: data.access_token,
+      expires: new Date(Date.now() + data.expires_in * 1000),
+      refreshToken: data.refresh_token,
       scope: data.scope,
     }
   }

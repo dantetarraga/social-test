@@ -41,4 +41,10 @@ authRouter.get('/tiktok/callback', AuthController.tiktokCallback)
 authRouter.post('/tiktok', AuthController.tiktokLogin)
 authRouter.post('/tiktok/generate-url', authenticateToken, AuthController.generateUrlToTikTok)
 
+// Facebook routes
+authRouter.get('/facebook/callback', AuthController.facebookCallback)
+// authRouter.post('/facebook', AuthController.facebookLogin)
+authRouter.post('/facebook/generate-url', authenticateToken, AuthController.generateUrlToFacebook)
+
+
 export default authRouter

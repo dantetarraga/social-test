@@ -33,6 +33,14 @@ export interface SocialConnectionDTO {
   scope?: string
 }
 
+export interface FacebookAuthResponse {
+  id: string
+  access_token: string
+  expires_in: number
+  refresh_token: string
+  scope: string
+}
+
 export type RegisterDTO = z.infer<typeof registerSchema>
 export type LoginDTO = z.infer<typeof loginSchema>
 
