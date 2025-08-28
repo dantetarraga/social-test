@@ -178,7 +178,7 @@ class AuthService {
     console.log("Facebook callback -...", code)
 
     const response = await fetch(
-      `https://graph.facebook.com/v12.0/oauth/access_token?client_id=${process.env.FACEBOOK_APP_ID!}&client_secret=${process.env.FACEBOOK_APP_SECRET!}&code=${code}&redirect_uri=${process.env.FACEBOOK_REDIRECT_URI!}`,
+      `https://graph.facebook.com/v23.0/oauth/access_token?client_id=${process.env.FACEBOOK_APP_ID!}&client_secret=${process.env.FACEBOOK_APP_SECRET!}&code=${code}&redirect_uri=${process.env.FACEBOOK_REDIRECT_URI!}`,
       {
         method: 'GET',
       }
