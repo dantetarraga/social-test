@@ -163,7 +163,7 @@ class AuthService {
     const REDIRECT_URI = process.env.FACEBOOK_REDIRECT_URI!
 
     const URL_AUTH_FACEBOOK = 'https://www.facebook.com/v12.0/dialog/oauth'
-    const SCOPE = 'email,public_profile,pages_show_list,pages_manage_posts'
+    const SCOPE = 'email'
 
     let redirectUrl = `${URL_AUTH_FACEBOOK}`
     redirectUrl += `?client_id=${APP_ID}`
@@ -178,19 +178,9 @@ class AuthService {
     console.log("Facebook callback -...", code)
 
     const response = await fetch(
-      'https://graph.facebook.com/v12.0/oauth/access_token',
+      `https://graph.facebook.com/v12.0/oauth/access_token?client_id=${process.env.FACEBOOK_APP_ID!}&client_secret=${process.env.FACEBOOK_APP_SECRET!}&code=${code}&redirect_uri=${process.env.FACEBOOK_REDIRECT_URI!}`,
       {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Cache-Control': 'no-cache',
-        },
-        body: new URLSearchParams({
-          client_id: process.env.FACEBOOK_APP_ID!,
-          client_secret: process.env.FACEBOOK_APP_SECRET!,
-          code,
-          redirect_uri: process.env.FACEBOOK_REDIRECT_URI!,
-        }),
+        method: 'GET',
       }
     )
 
