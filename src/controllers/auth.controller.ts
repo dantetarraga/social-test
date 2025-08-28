@@ -111,6 +111,8 @@ class AuthController {
 
     const redirectUrl = authService.getFacebookAuthUrl(csrfState)
 
+    console.log(redirectUrl)
+
     return res.status(200).json({
       success: true,
       data: redirectUrl,

@@ -158,7 +158,7 @@ class AuthService {
     }
   }
 
-  async getFacebookAuthUrl(state: string): Promise<string> {
+  getFacebookAuthUrl(state: string): string {
     const APP_ID = process.env.FACEBOOK_APP_ID!
     const REDIRECT_URI = process.env.FACEBOOK_REDIRECT_URI!
 
@@ -193,6 +193,8 @@ class AuthService {
     )
 
     if (!response.ok) throw Boom.internal('Error obtaining Facebook token')
+
+    console.log(`Facebook token response: ${response}`)
     const data = (await response.json()) as FacebookAuthResponse
 
     console.log(data)
