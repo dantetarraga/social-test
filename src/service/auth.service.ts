@@ -162,7 +162,7 @@ class AuthService {
     const APP_ID = process.env.FACEBOOK_APP_ID!
     const REDIRECT_URI = process.env.FACEBOOK_REDIRECT_URI!
 
-    const URL_AUTH_FACEBOOK = 'https://www.facebook.com/v12.0/dialog/oauth'
+    const URL_AUTH_FACEBOOK = 'https://www.facebook.com/v23.0/dialog/oauth'
     const SCOPE = 'email'
 
     let redirectUrl = `${URL_AUTH_FACEBOOK}`
@@ -177,27 +177,32 @@ class AuthService {
   async facebookCallback(code: string): Promise<SocialConnectionDTO> {
     console.log("Facebook callback -...", code)
 
-    const response = await fetch(
-      `https://graph.facebook.com/v23.0/oauth/access_token?client_id=${process.env.FACEBOOK_APP_ID!}&client_secret=${process.env.FACEBOOK_APP_SECRET!}&code=${code}&redirect_uri=${process.env.FACEBOOK_REDIRECT_URI!}`,
-      {
-        method: 'GET',
+    try {
+      const response = await fetch(
+        `https://graph.facebook.com/v23.0/oauth/access_token?client_id=${process.env.FACEBOOK_APP_ID!}&client_secret=${process.env.FACEBOOK_APP_SECRET!}&code=${code}&redirect_uri=${process.env.FACEBOOK_REDIRECT_URI!}`,
+        {
+          method: 'GET',
+        }
+      )
+  
+      if (!response.ok) throw Boom.internal('Error obtaining Facebook token')
+  
+      console.log(`Facebook token response: ${response}`)
+      const data = (await response.json()) as FacebookAuthResponse
+  
+      console.log(data)
+  
+      return {
+        socialType: SocialType.FACEBOOK,
+        socialAccountId: data.id,
+        token: data.access_token,
+        expires: new Date(Date.now() + data.expires_in * 1000),
+        refreshToken: data.refresh_token,
+        scope: data.scope,
       }
-    )
-
-    if (!response.ok) throw Boom.internal('Error obtaining Facebook token')
-
-    console.log(`Facebook token response: ${response}`)
-    const data = (await response.json()) as FacebookAuthResponse
-
-    console.log(data)
-
-    return {
-      socialType: SocialType.FACEBOOK,
-      socialAccountId: data.id,
-      token: data.access_token,
-      expires: new Date(Date.now() + data.expires_in * 1000),
-      refreshToken: data.refresh_token,
-      scope: data.scope,
+    } catch (error){
+      console.error('Error during Facebook callback:', error)
+      throw Boom.internal('Error during Facebook callback')
     }
   }
 }
