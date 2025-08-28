@@ -175,6 +175,8 @@ class AuthService {
   }
 
   async facebookCallback(code: string): Promise<SocialConnectionDTO> {
+    console.log("Facebook callback -...", code)
+
     const response = await fetch(
       'https://graph.facebook.com/v12.0/oauth/access_token',
       {
