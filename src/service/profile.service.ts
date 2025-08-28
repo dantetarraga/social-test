@@ -9,10 +9,12 @@ import { CreateProfileDTO, UpdateProfileDTO } from "@/types"
 class ProfileService {
   private profileRepo: Repository<Profile>
   private userRepo: Repository<User>
+  private socialConnectionRepo: Repository<SocialConnection>
 
   constructor() {
     this.profileRepo = AppDataSource.getRepository(Profile)
     this.userRepo = AppDataSource.getRepository(User)
+    this.socialConnectionRepo = AppDataSource.getRepository(SocialConnection)
   }
 
   async createProfile(userId: number, data: CreateProfileDTO): Promise<Omit<Profile, 'user'>> {
@@ -59,7 +61,6 @@ class ProfileService {
   }
 
   async getProfileConnections(userId: number, profileId: number): Promise<SocialConnection[]> {
-    console.log("Fetching profile connections...")
     const profile = await this.profileRepo.findOne({
       where: { id: profileId, user: { id: userId } },
       relations: ['connections']
@@ -67,6 +68,20 @@ class ProfileService {
 
     if (!profile) throw Boom.notFound('Profile not found')
     return profile.connections
+  }
+
+  async disconnect(profileId: number, connectionId: number): Promise<void> {
+    const profile = await this.profileRepo.findOne({
+      where: { id: profileId },
+      relations: ['user', 'connections'],
+    })
+
+    if (!profile) throw Boom.notFound('Profile not found')
+
+    const connection = profile.connections.find(conn => conn.id === connectionId)
+    if (!connection) throw Boom.notFound('Connection not found')
+
+    await this.socialConnectionRepo.remove(connection)
   }
 }
 

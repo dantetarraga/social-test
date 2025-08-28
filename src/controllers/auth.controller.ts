@@ -53,7 +53,10 @@ class AuthController {
     })
   }
 
-  static async generateUrlToTikTok(req: Request, res: Response): Promise<Response> {
+  static async generateUrlToTikTok(
+    req: Request,
+    res: Response
+  ): Promise<Response> {
     const { profileId } = req.body
 
     let csrfState = Math.random().toString(36).substring(2)
@@ -61,13 +64,11 @@ class AuthController {
 
     const redirectUrl = authService.getTikTokAuthUrl(csrfState)
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        data: redirectUrl,
-        message: 'Redirect URL generated successfully',
-      })
+    return res.status(200).json({
+      success: true,
+      data: redirectUrl,
+      message: 'Redirect URL generated successfully',
+    })
   }
 
   static async tiktokLogin(req: Request, res: Response): Promise<void> {

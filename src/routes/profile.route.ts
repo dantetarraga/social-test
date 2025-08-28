@@ -44,4 +44,10 @@ profileRouter.get(
   ProfileController.getProfileConnections
 )
 
+profileRouter.delete(
+  '/:profileId/connections/:connectionId',
+  authenticateToken,
+  ProfileController.disconnect
+)
+
 export default profileRouter

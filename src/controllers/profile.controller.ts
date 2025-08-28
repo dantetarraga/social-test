@@ -1,7 +1,9 @@
 import { Request, Response } from 'express'
 import { ProfileService } from '@/service'
+import SocialConnectionService from '@/service/social-connection.service'
 
 const profileService = new ProfileService()
+const socialConnectionService = new SocialConnectionService()
 
 class ProfileController {
   static async createProfile(req: Request, res: Response): Promise<Response> {
@@ -68,6 +70,17 @@ class ProfileController {
     return res
       .status(200)
       .json({ success: true , message: 'Profile connections retrieved successfully', data: response })
+  }
+
+   static async disconnect(req: Request, res: Response): Promise<Response> {
+    const { profileId, connectionId } = req.params
+
+    await profileService.disconnect(Number(profileId), Number(connectionId))
+
+    return res.status(200).json({
+      success: true,
+      message: 'Connection removed successfully',
+    })
   }
 }
 
