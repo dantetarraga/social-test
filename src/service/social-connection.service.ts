@@ -14,14 +14,13 @@ class SocialConnectionService {
     this.profileRepo = AppDataSource.getRepository(Profile)
   }
 
-  async saveConnectionToTikTok(profileId: number, userId: number, data: SocialConnectionDTO): Promise<SocialConnection> {
+  async saveConnectionToTikTok(profileId: number, data: SocialConnectionDTO): Promise<SocialConnection> {
     const profile = await this.profileRepo.findOne({
       where: { id: profileId },
       relations: ['user'],
     })
-    
+
     if (!profile) throw Boom.notFound('Profile not found')
-    if (profile.user.id !== userId) throw Boom.unauthorized('You do not own this profile')
 
     const connection = this.connectionRepo.create({
       ...data,

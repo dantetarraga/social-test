@@ -89,7 +89,6 @@ class AuthController {
   static async tiktokCallback(req: Request, res: Response): Promise<Response> {
     const { code, state } = req.query as { code: string; state: string }
     const profileId = state.split('-')[1]
-    const userId = state.split('-')[2]
 
     // console.log(`Profile ID: ${profileId}`)
 
@@ -97,7 +96,6 @@ class AuthController {
 
     await socialConnectionService.saveConnectionToTikTok(
       Number(profileId),
-      Number(userId),
       response
     )
 

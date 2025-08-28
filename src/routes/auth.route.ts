@@ -37,8 +37,8 @@ authRouter.post(
 )
 
 // TikTok routes
-authRouter.get('/tiktok/callback', authenticateToken, AuthController.tiktokCallback)
+authRouter.get('/tiktok/callback', AuthController.tiktokCallback)
 authRouter.post('/tiktok', AuthController.tiktokLogin)
-authRouter.post('/tiktok/generate-url', AuthController.generateUrlToTikTok)
+authRouter.post('/tiktok/generate-url', authenticateToken, AuthController.generateUrlToTikTok)
 
 export default authRouter
