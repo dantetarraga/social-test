@@ -76,14 +76,14 @@ class AuthController {
 
     const response = await authService.tiktokCallback(code as string)
 
-    await socialConnectionService.saveConnectionToTikTok(
+    const savedConnection = await socialConnectionService.saveConnectionToTikTok(
       Number(profileId),
       response
     )
 
     return res.status(200).json({
       success: true,
-      data: response,
+      data: savedConnection,
       message: 'TikTok login successful',
     })
   }
@@ -94,14 +94,14 @@ class AuthController {
 
     const response = await authService.facebookCallback(code as string)
 
-    await socialConnectionService.saveConnectionToFacebook(
+    const savedConnection = await socialConnectionService.saveConnectionToFacebook(
       Number(profileId),
       response
     )
 
     return res.status(200).json({
       success: true,
-      data: response,
+      data: savedConnection,
       message: 'Facebook login successful',
     })
   }
