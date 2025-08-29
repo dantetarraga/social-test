@@ -94,10 +94,10 @@ class AuthController {
 
     const response = await authService.facebookCallback(code as string)
 
-    // await socialConnectionService.saveConnectionToFacebook(
-    //   Number(profileId),
-    //   response
-    // )
+    await socialConnectionService.saveConnectionToFacebook(
+      Number(profileId),
+      response
+    )
 
     return res.status(200).json({
       success: true,

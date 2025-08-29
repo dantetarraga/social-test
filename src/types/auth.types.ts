@@ -30,7 +30,7 @@ export interface TikTokAuthResponse {
 
 export interface SocialConnectionDTO {
   socialType: SocialType
-  socialAccountId: string
+  socialAccountId?: string
   token: string
   expires: Date
   refreshToken?: string
@@ -39,11 +39,9 @@ export interface SocialConnectionDTO {
 }
 
 export interface FacebookAuthResponse {
-  id: string
   access_token: string
   expires_in: number
-  refresh_token: string
-  scope: string
+  token_type: 'Bearer'
 }
 
 export interface ProviderConfig {

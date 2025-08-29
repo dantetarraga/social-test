@@ -158,37 +158,30 @@ class AuthService {
     }
   }
 
-  async facebookCallback(code: string): Promise<void> {
-    try {
-      const response = await fetch(
-        `https://graph.facebook.com/v23.0/oauth/access_token?client_id=${process
-          .env.FACEBOOK_APP_ID!}&client_secret=${process.env
-          .FACEBOOK_APP_SECRET!}&code=${code}&redirect_uri=${process.env
-          .FACEBOOK_REDIRECT_URI!}`,
-        {
-          method: 'GET',
-        }
-      )
+  async facebookCallback(code: string): Promise<SocialConnectionDTO> {
+    const config = callbackProviders[SocialType.FACEBOOK] as CallbackConfig
+    const { data } = await axios.get<FacebookAuthResponse>(config.tokenUrl, {
+      params: {
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        code,
+        redirect_uri: config.redirectUri,
+      },
+    })
 
-      if (!response.ok) throw Boom.internal('Error obtaining Facebook token')
+    if (!data) throw Boom.internal('Error obtaining Facebook token')
+    const meResponse = await fetch(
+      `https://graph.facebook.com/me?access_token=${data.access_token}`
+    )
 
-        const data = (await response.json()) 
-        console.log(`Facebook token response: ${data}`)
+    if (!meResponse.ok) throw Boom.internal('Error obtaining Facebook user info')
+    const profile = await meResponse.json() as { id: string, name: string }
 
-      console.log(data)
-
-      // return {
-      //   socialType: SocialType.FACEBOOK,
-      //   socialAccountId: data.id,
-      //   token: data.access_token,
-      //   expires: new Date(Date.now() + data.expires_in * 1000),
-      //   refreshToken: data.refresh_token,
-      //   scope: data.scope,
-      // }
-      return
-    } catch (error) {
-      console.error('Error during Facebook callback:', error)
-      throw Boom.internal('Error during Facebook callback')
+    return {
+      socialType: SocialType.FACEBOOK,
+      socialAccountId: profile.id, 
+      token: data.access_token,
+      expires: new Date(Date.now() + data.expires_in * 1000),
     }
   }
 }
