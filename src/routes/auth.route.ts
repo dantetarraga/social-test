@@ -25,7 +25,7 @@ authRouter.post(
 )
 
 authRouter.post(
-  '/notify-reset-password',
+  '/notify',
   validateSchema(recoveryEmailSchema, 'body'),
   AuthController.notifyResetPassword
 )
@@ -36,15 +36,11 @@ authRouter.post(
   AuthController.resetPassword
 )
 
-// TikTok routes
-authRouter.get('/tiktok/callback', AuthController.tiktokCallback)
-authRouter.post('/tiktok', AuthController.tiktokLogin)
-authRouter.post('/tiktok/generate-url', authenticateToken, AuthController.generateUrlToTikTok)
+authRouter.post('/', authenticateToken, AuthController.generateAuthUrl)
 
-// Facebook routes
+// Callbacks
+authRouter.get('/tiktok/callback', AuthController.tiktokCallback)
 authRouter.get('/facebook/callback', AuthController.facebookCallback)
-// authRouter.post('/facebook', AuthController.facebookLogin)
-authRouter.post('/facebook/generate-url', authenticateToken, AuthController.generateUrlToFacebook)
 
 
 export default authRouter

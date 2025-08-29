@@ -5,8 +5,13 @@ import {
   registerSchema,
   resetPasswordSchema,
 } from '@/schema'
-import { SocialType } from '@/models'
 
+export enum SocialType {
+  TIKTOK = 'tiktok',
+  FACEBOOK = 'facebook',
+  INSTAGRAM = 'instagram',
+  YOUTUBE = 'youtube',
+}
 export interface AuthResponse {
   email: string
   fullName?: string
@@ -39,6 +44,24 @@ export interface FacebookAuthResponse {
   expires_in: number
   refresh_token: string
   scope: string
+}
+
+export interface ProviderConfig {
+  authUrl: string
+  clientId: string
+  clientIdParam: string
+  redirectUri: string
+  scope: string
+  responseType?: string
+}
+
+export interface CallbackConfig {
+  tokenUrl: string
+  clientId: string
+  clientSecret: string
+  redirectUri: string
+  method: 'GET' | 'POST'
+  grantType?: string
 }
 
 export type RegisterDTO = z.infer<typeof registerSchema>

@@ -1,7 +1,6 @@
-import { AuthService } from '@/service'
-import SocialConnectionService from '@/service/social-connection.service'
+import { SocialType } from '@/types'
 import { Request, Response } from 'express'
-import { success } from 'zod'
+import { AuthService, SocialConnectionService } from '@/service'
 
 const authService = new AuthService()
 const socialConnectionService = new SocialConnectionService()
@@ -53,36 +52,22 @@ class AuthController {
     })
   }
 
-  static async generateUrlToTikTok(
-    req: Request,
-    res: Response
-  ): Promise<Response> {
-    const { profileId } = req.body
+  static async generateAuthUrl(req: Request, res: Response): Promise<Response> {
+    const { profileId, platform } = req.body
 
     let csrfState = Math.random().toString(36).substring(2)
     csrfState += `-${profileId}`
 
-    const redirectUrl = authService.getTikTokAuthUrl(csrfState)
+    const redirectUrl = authService.generateAuthUrl(platform, csrfState)
 
     return res.status(200).json({
       success: true,
-      data: redirectUrl,
+      data: {
+        redirectUrl,
+        platform
+      },
       message: 'Redirect URL generated successfully',
     })
-  }
-
-  static async tiktokLogin(req: Request, res: Response): Promise<void> {
-    const { profileId } = req.body
-    const { id } = req.user!
-
-    let csrfState = Math.random().toString(36).substring(2)
-    csrfState += `-${profileId}`
-    csrfState += `-${id}`
-
-    res.cookie('csrfState', csrfState, { maxAge: 60000 })
-
-    const redirectUrl = authService.getTikTokAuthUrl(csrfState)
-    return res.redirect(redirectUrl)
   }
 
   static async tiktokCallback(req: Request, res: Response): Promise<Response> {
@@ -100,23 +85,6 @@ class AuthController {
       success: true,
       data: response,
       message: 'TikTok login successful',
-    })
-  }
-
-  static async generateUrlToFacebook(req: Request, res: Response): Promise<Response> {
-    const { profileId } = req.body
-
-    let csrfState = Math.random().toString(36).substring(2)
-    csrfState += `-${profileId}`
-
-    const redirectUrl = authService.getFacebookAuthUrl(csrfState)
-
-    console.log(redirectUrl)
-
-    return res.status(200).json({
-      success: true,
-      data: redirectUrl,
-      message: 'Redirect URL generated successfully',
     })
   }
 

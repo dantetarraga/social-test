@@ -1,6 +1,6 @@
 import Boom from '@hapi/boom'
 
-import { SocialType, User } from '@/models'
+import { User } from '@/models'
 import { Repository } from 'typeorm'
 import { AppDataSource } from '@/config/database'
 
@@ -14,13 +14,18 @@ import {
 
 import {
   AuthResponse,
+  CallbackConfig,
   FacebookAuthResponse,
   LoginDTO,
+  ProviderConfig,
   RegisterDTO,
   ResetPasswordDTO,
   SocialConnectionDTO,
+  SocialType,
   TikTokAuthResponse,
 } from '@/types'
+import { callbackProviders, providers } from '@/config'
+import axios from 'axios'
 
 class AuthService {
   private userRepo: Repository<User>
@@ -108,44 +113,39 @@ class AuthService {
     await this.userRepo.save(user)
   }
 
-  getTikTokAuthUrl(state: string): string {
-    const CLIENT_KEY = process.env.TIKTOK_CLIENT_KEY!
-    const REDIRECT_URI = process.env.TIKTOK_REDIRECT_URI!
+  generateAuthUrl(platform: SocialType, state: string): string {
+    const config = providers[platform] as ProviderConfig
+    if (!config) throw Boom.badRequest(`Plataforma ${platform} no soportada`)
 
-    const URL_AUTH_TIKTOK = 'https://www.tiktok.com/v2/auth/authorize/'
-    const SCOPE = 'user.info.basic'
+    const params = new URLSearchParams({
+      [config.clientIdParam]: config.clientId,
+      redirect_uri: config.redirectUri,
+      response_type: config.responseType!,
+      scope: config.scope,
+      state,
+    })
 
-    let redirectUrl = `${URL_AUTH_TIKTOK}`
-    redirectUrl += `?client_key=${CLIENT_KEY}`
-    redirectUrl += `&scope=${SCOPE}`
-    redirectUrl += `&response_type=code`
-    redirectUrl += `&redirect_uri=${REDIRECT_URI}`
-    redirectUrl += `&state=${state}`
-
-    return redirectUrl
+    return `${config.authUrl}?${params.toString()}`
   }
 
   async tiktokCallback(code: string): Promise<SocialConnectionDTO> {
-    const response = await fetch(
-      'https://open.tiktokapis.com/v2/oauth/token/',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Cache-Control': 'no-cache',
-        },
-        body: new URLSearchParams({
-          client_key: process.env.TIKTOK_CLIENT_KEY!,
-          client_secret: process.env.TIKTOK_CLIENT_SECRET!,
-          code,
-          grant_type: 'authorization_code',
-          redirect_uri: process.env.TIKTOK_REDIRECT_URI!,
-        }),
-      }
-    )
+    const config = callbackProviders[SocialType.TIKTOK] as CallbackConfig
 
-    if (!response.ok) throw Boom.internal('Error obtaining TikTok token')
-    const data = (await response.json()) as TikTokAuthResponse
+    const { data } = await axios.get<TikTokAuthResponse>(config.tokenUrl, {
+      params: {
+        client_key: config.clientId,
+        client_secret: config.clientSecret,
+        code,
+        grant_type: config.grantType,
+        redirect_uri: config.redirectUri,
+      },
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Cache-Control': 'no-cache',
+      },
+    })
+
+    if (!data) throw Boom.internal('Error obtaining TikTok token')
 
     return {
       socialType: SocialType.TIKTOK,
@@ -158,40 +158,27 @@ class AuthService {
     }
   }
 
-  getFacebookAuthUrl(state: string): string {
-    const APP_ID = process.env.FACEBOOK_APP_ID!
-    const REDIRECT_URI = process.env.FACEBOOK_REDIRECT_URI!
-
-    const URL_AUTH_FACEBOOK = 'https://www.facebook.com/v23.0/dialog/oauth'
-    const SCOPE = 'email'
-
-    let redirectUrl = `${URL_AUTH_FACEBOOK}`
-    redirectUrl += `?client_id=${APP_ID}`
-    redirectUrl += `&redirect_uri=${REDIRECT_URI}`
-    redirectUrl += `&scope=${SCOPE}`
-    redirectUrl += `&state=${state}`
-
-    return redirectUrl
-  }
-
   async facebookCallback(code: string): Promise<SocialConnectionDTO> {
-    console.log("Facebook callback -...", code)
 
     try {
       const response = await fetch(
-        `https://graph.facebook.com/v23.0/oauth/access_token?client_id=${process.env.FACEBOOK_APP_ID!}&client_secret=${process.env.FACEBOOK_APP_SECRET!}&code=${code}&redirect_uri=${process.env.FACEBOOK_REDIRECT_URI!}`,
+        `https://graph.facebook.com/v23.0/oauth/access_token?client_id=${process
+          .env.FACEBOOK_APP_ID!}&client_secret=${process.env
+          .FACEBOOK_APP_SECRET!}&code=${code}&redirect_uri=${process.env
+          .FACEBOOK_REDIRECT_URI!}`,
         {
           method: 'GET',
         }
       )
-  
+
       if (!response.ok) throw Boom.internal('Error obtaining Facebook token')
-  
-      console.log(`Facebook token response: ${response}`)
+
+      const responseData = await response.json()
+      console.log(`Facebook token response: ${responseData}`)
       const data = (await response.json()) as FacebookAuthResponse
-  
+
       console.log(data)
-  
+
       return {
         socialType: SocialType.FACEBOOK,
         socialAccountId: data.id,
@@ -200,7 +187,7 @@ class AuthService {
         refreshToken: data.refresh_token,
         scope: data.scope,
       }
-    } catch (error){
+    } catch (error) {
       console.error('Error during Facebook callback:', error)
       throw Boom.internal('Error during Facebook callback')
     }

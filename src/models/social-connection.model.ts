@@ -1,12 +1,6 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
 import { Profile } from './profile.model'
-
-export enum SocialType {
-  TIKTOK = 'tiktok',
-  FACEBOOK = 'facebook',
-  INSTAGRAM = 'instagram',
-  YOUTUBE = 'youtube',
-}
+import { SocialType } from '@/types'
 
 @Entity()
 export class SocialConnection {
