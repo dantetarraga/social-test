@@ -33,9 +33,23 @@ class SocialConnectionService {
     return savedConnection
   }
 
-  async saveConnectionToFacebook(profileId: number, data: SocialConnectionDTO): Promise<void> {
-    console.log("Data de facebook -...", data)
-    return
+  async saveConnectionToFacebook(profileId: number, data: SocialConnectionDTO): Promise<SocialConnection> {
+    const profile = await this.profileRepo.findOne({
+      where: { id: profileId },
+      relations: ['user'],
+    })
+
+    if (!profile) throw Boom.notFound('Profile not found')
+
+    const connection = this.connectionRepo.create({
+      ...data,
+      profile,
+    })
+
+    const savedConnection = await this.connectionRepo.save(connection)
+    if (!savedConnection) throw Boom.internal('Error saving connection')
+
+    return savedConnection
   }
 
   async saveConnectionToInstagram(accessToken: string): Promise<void> {}
