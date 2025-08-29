@@ -12,6 +12,7 @@ export enum SocialType {
   INSTAGRAM = 'instagram',
   YOUTUBE = 'youtube',
 }
+
 export interface AuthResponse {
   email: string
   fullName?: string
@@ -58,7 +59,6 @@ export interface CallbackConfig {
   clientId: string
   clientSecret: string
   redirectUri: string
-  method: 'GET' | 'POST'
   grantType?: string
 }
 

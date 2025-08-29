@@ -1,3 +1,4 @@
+import { SocialType } from '@/types'
 import { z } from 'zod'
 
 export const authSchema = z.object({
@@ -30,4 +31,7 @@ export const resetPasswordSchema = z.object({
     .min(6, 'La contraseña debe tener mínimo 6 caracteres'),
 })
 
-
+export const connectionSchema = z.object({
+  platform: z.enum(SocialType),
+  profileId: z.number('El ID de perfil es obligatorio').min(1),
+})

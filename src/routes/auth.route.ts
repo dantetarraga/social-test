@@ -8,6 +8,7 @@ import {
   registerSchema,
   resetPasswordSchema,
   recoveryEmailSchema,
+  connectionSchema,
 } from '@/schema'
 
 const authRouter = Router()
@@ -36,11 +37,15 @@ authRouter.post(
   AuthController.resetPassword
 )
 
-authRouter.post('/', authenticateToken, AuthController.generateAuthUrl)
+authRouter.post(
+  '/',
+  authenticateToken,
+  validateSchema(connectionSchema, 'body'),
+  AuthController.generateAuthUrl
+)
 
 // Callbacks
 authRouter.get('/tiktok/callback', AuthController.tiktokCallback)
 authRouter.get('/facebook/callback', AuthController.facebookCallback)
-
 
 export default authRouter
