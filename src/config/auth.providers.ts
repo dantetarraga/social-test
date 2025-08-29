@@ -7,7 +7,7 @@ export const providers = {
     clientId: process.env.TIKTOK_CLIENT_KEY!,
     clientIdParam: 'client_key',
     redirectUri: process.env.TIKTOK_REDIRECT_URI!,
-    scope: 'user.info.basic',
+    scope: 'user.info.basic user.info.profile video.upload video.publish',
     responseType: 'code',
   },
   [SocialType.FACEBOOK]: {
@@ -15,7 +15,7 @@ export const providers = {
     clientId: process.env.FACEBOOK_APP_ID!,
     clientIdParam: 'client_id',
     redirectUri: process.env.FACEBOOK_REDIRECT_URI!,
-    scope: 'email',
+    scope: 'email publish_video',
     responseType: 'code',
   },
   [SocialType.INSTAGRAM]: {

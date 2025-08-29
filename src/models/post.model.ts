@@ -21,6 +21,9 @@ export class Post {
   })
   publishing!: PublishingType
 
+  // @Column({ type: 'simple-array', nullable: true })
+  // permissions?: string[]
+
   @Column({ type: 'timestamp', nullable: true })
   scheduledAt?: Date
 
