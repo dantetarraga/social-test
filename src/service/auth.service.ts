@@ -158,8 +158,7 @@ class AuthService {
     }
   }
 
-  async facebookCallback(code: string): Promise<SocialConnectionDTO> {
-
+  async facebookCallback(code: string): Promise<void> {
     try {
       const response = await fetch(
         `https://graph.facebook.com/v23.0/oauth/access_token?client_id=${process
@@ -173,20 +172,20 @@ class AuthService {
 
       if (!response.ok) throw Boom.internal('Error obtaining Facebook token')
 
-      const responseData = await response.json()
-      console.log(`Facebook token response: ${responseData}`)
-      const data = (await response.json()) as FacebookAuthResponse
+        const data = (await response.json()) 
+        console.log(`Facebook token response: ${data}`)
 
       console.log(data)
 
-      return {
-        socialType: SocialType.FACEBOOK,
-        socialAccountId: data.id,
-        token: data.access_token,
-        expires: new Date(Date.now() + data.expires_in * 1000),
-        refreshToken: data.refresh_token,
-        scope: data.scope,
-      }
+      // return {
+      //   socialType: SocialType.FACEBOOK,
+      //   socialAccountId: data.id,
+      //   token: data.access_token,
+      //   expires: new Date(Date.now() + data.expires_in * 1000),
+      //   refreshToken: data.refresh_token,
+      //   scope: data.scope,
+      // }
+      return
     } catch (error) {
       console.error('Error during Facebook callback:', error)
       throw Boom.internal('Error during Facebook callback')
