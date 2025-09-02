@@ -16,6 +16,7 @@ import {
   AuthResponse,
   CallbackConfig,
   FacebookAuthResponse,
+  InstagramAuthResponse,
   LoginDTO,
   ProviderConfig,
   RegisterDTO,
@@ -180,6 +181,27 @@ class AuthService {
     return {
       socialType: SocialType.FACEBOOK,
       socialAccountId: profile.id, 
+      token: data.access_token,
+      expires: new Date(Date.now() + data.expires_in * 1000),
+    }
+  }
+
+  async instagramCallback(code: string): Promise<SocialConnectionDTO> {
+    const config = callbackProviders[SocialType.INSTAGRAM] as CallbackConfig
+
+    const { data } = await axios.get<InstagramAuthResponse>(config.tokenUrl, {
+      params: {
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        code,
+        redirect_uri: config.redirectUri,
+      },
+    })
+
+    if (!data) throw Boom.internal('Error obtaining Instagram token')
+
+    return {
+      socialType: SocialType.INSTAGRAM,
       token: data.access_token,
       expires: new Date(Date.now() + data.expires_in * 1000),
     }

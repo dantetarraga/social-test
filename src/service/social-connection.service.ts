@@ -52,7 +52,9 @@ class SocialConnectionService {
     return savedConnection
   }
 
-  async saveConnectionToInstagram(accessToken: string): Promise<void> {}
+  async saveConnectionToInstagram(accessToken: number, data: SocialConnectionDTO): Promise<void> {
+    console.log(data)
+  }
 }
 
 export default SocialConnectionService

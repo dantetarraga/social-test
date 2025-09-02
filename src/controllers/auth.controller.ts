@@ -105,6 +105,24 @@ class AuthController {
       message: 'Facebook login successful',
     })
   }
+
+  static async instagramCallback(req: Request, res: Response): Promise<Response> {
+    const { code, state } = req.query as { code: string; state: string }
+    const profileId = state.split('-')[1]
+
+    const response = await authService.instagramCallback(code as string)
+
+    const savedConnection = await socialConnectionService.saveConnectionToInstagram(
+      Number(profileId),
+      response
+    )
+
+    return res.status(200).json({
+      success: true,
+      data: savedConnection,
+      message: 'Instagram login successful',
+    })
+  }
 }
 
 export default AuthController
