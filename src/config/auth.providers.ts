@@ -53,7 +53,7 @@ export const callbackProviders = {
     method: 'GET',
   },
   [SocialType.INSTAGRAM]: {
-    tokenUrl: 'https://graph.instagram.com/v10.0/oauth/access_token',
+    tokenUrl: 'https://graph.instagram.com/oauth/access_token',
     clientId: process.env.INSTAGRAM_APP_ID!,
     clientSecret: process.env.INSTAGRAM_APP_SECRET!,
     redirectUri: process.env.INSTAGRAM_REDIRECT_URI!,

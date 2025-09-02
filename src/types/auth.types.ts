@@ -45,6 +45,11 @@ export interface FacebookAuthResponse {
   token_type: 'Bearer'
 }
 
+export interface InstagramAuthResponse {
+  access_token: string
+  expires_in: number
+}
+
 export interface ProviderConfig {
   authUrl: string
   clientId: string
