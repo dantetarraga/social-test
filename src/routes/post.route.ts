@@ -5,10 +5,15 @@ import { Router } from 'express'
 
 const postRouter = Router()
 
+import multer from "multer"
+
+const upload = multer({ dest: "uploads/posts" })
+
 postRouter.post(
-  '/',
+  '',
   authenticateToken,
-  validateSchema(createPostSchema, 'body'),
+  upload.array("media"),
+  // validateSchema(createPostSchema, 'body'),
   PostController.createPost
 )
 

@@ -52,8 +52,42 @@ class SocialConnectionService {
     return savedConnection
   }
 
-  async saveConnectionToInstagram(accessToken: number, data: SocialConnectionDTO): Promise<void> {
-    console.log(data)
+  async saveConnectionToInstagram(profileId: number, data: SocialConnectionDTO): Promise<SocialConnection> {
+    const profile = await this.profileRepo.findOne({
+      where: { id: profileId },
+      relations: ['user'],
+    })
+
+    if (!profile) throw Boom.notFound('Profile not found')
+
+    const connection = this.connectionRepo.create({
+      ...data,
+      profile,
+    })
+
+    const savedConnection = await this.connectionRepo.save(connection)
+    if (!savedConnection) throw Boom.internal('Error saving connection')
+
+    return savedConnection
+  }
+
+  async saveConnectionToYouTube(profileId: number, data: SocialConnectionDTO): Promise<SocialConnection> {
+    const profile = await this.profileRepo.findOne({
+      where: { id: profileId },
+      relations: ['user'],
+    })
+
+    if (!profile) throw Boom.notFound('Profile not found')
+
+    const connection = this.connectionRepo.create({
+      ...data,
+      profile,
+    })
+
+    const savedConnection = await this.connectionRepo.save(connection)
+    if (!savedConnection) throw Boom.internal('Error saving connection')
+
+    return savedConnection
   }
 }
 

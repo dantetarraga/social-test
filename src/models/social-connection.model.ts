@@ -10,7 +10,7 @@ export class SocialConnection {
   @Column({ type: 'enum', enum: SocialType })
   socialType!: SocialType
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   socialAccountId!: string  
 
   @Column({ type: 'varchar', length: 500 })

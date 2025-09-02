@@ -1,5 +1,6 @@
 import { SocialType } from "@/types"
 import 'dotenv/config'
+import { access } from "fs"
 
 export const providers = {
   [SocialType.TIKTOK]: {
@@ -19,20 +20,23 @@ export const providers = {
     responseType: 'code',
   },
   [SocialType.INSTAGRAM]: {
-    authUrl: 'https://www.instagram.com/oauth/authorize',
-    clientId: process.env.INSTAGRAM_APP_ID!,
+    authUrl: 'https://api.instagram.com/oauth/authorize',
+    clientId: process.env.INSTAGRAM_CLIENT_ID!,
+    clientSecret: process.env.INSTAGRAM_CLIENT_SECRET!,
     clientIdParam: 'client_id',
     redirectUri: process.env.INSTAGRAM_REDIRECT_URI!,
     scope: 'user_profile,user_media',
     responseType: 'code',
   },
   [SocialType.YOUTUBE]: {
-    authUrl: 'https://accounts.google.com/o/oauth2/auth',
+    authUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
     clientId: process.env.YOUTUBE_CLIENT_ID!,
     clientIdParam: 'client_id',
     redirectUri: process.env.YOUTUBE_REDIRECT_URI!,
-    scope: 'https://www.googleapis.com/auth/youtube.readonly',
+    scope: 'https://www.googleapis.com/auth/drive',
     responseType: 'code',
+    accessType: 'offline',
+    prompt: 'consent',
   },
 }
 

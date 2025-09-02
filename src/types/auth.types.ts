@@ -37,6 +37,7 @@ export interface SocialConnectionDTO {
   refreshToken?: string
   refreshExpires?: Date
   scope?: string
+  tokenType?: string
 }
 
 export interface FacebookAuthResponse {
@@ -57,6 +58,8 @@ export interface ProviderConfig {
   redirectUri: string
   scope: string
   responseType?: string
+  accessType?: string
+  prompt?: string
 }
 
 export interface CallbackConfig {
@@ -65,6 +68,14 @@ export interface CallbackConfig {
   clientSecret: string
   redirectUri: string
   grantType?: string
+}
+
+export interface YouTubeAuthResponse {
+  access_token: string
+  expires_in: number
+  token_type: 'Bearer'
+  refresh_token: string
+  scope: string
 }
 
 export type RegisterDTO = z.infer<typeof registerSchema>

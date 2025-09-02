@@ -1,6 +1,7 @@
 import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Profile } from "./profile.model";
 import { MediaItem } from "@/schema";
+import { SocialConnection } from "./social-connection.model";
 
 @Entity()
 export class Post {
@@ -13,8 +14,12 @@ export class Post {
   @Column({ type: "simple-json", nullable: true })
   media?: MediaItem[];
 
-  @Column({ type: "timestamp", nullable: true })
-  scheduledAt?: Date;
+  @Column({ type: "timestamp" })
+  scheduledAt!: Date;
+
+  @ManyToMany(() => SocialConnection, { cascade: true })
+  @JoinTable()
+  socialConnections!: SocialConnection[];
 
   @ManyToMany(() => Profile, (profile) => profile.posts, { cascade: true })
   @JoinTable()

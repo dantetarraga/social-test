@@ -24,6 +24,7 @@ import {
   SocialConnectionDTO,
   SocialType,
   TikTokAuthResponse,
+  YouTubeAuthResponse,
 } from '@/types'
 import { callbackProviders, providers } from '@/config'
 import axios from 'axios'
@@ -126,6 +127,11 @@ class AuthService {
       state,
     })
 
+    if (platform === SocialType.YOUTUBE) {
+      params.append('access_type', config.accessType!)
+      params.append('prompt', config.prompt!)
+    }
+
     return `${config.authUrl}?${params.toString()}`
   }
 
@@ -175,12 +181,13 @@ class AuthService {
       `https://graph.facebook.com/me?access_token=${data.access_token}`
     )
 
-    if (!meResponse.ok) throw Boom.internal('Error obtaining Facebook user info')
-    const profile = await meResponse.json() as { id: string, name: string }
+    if (!meResponse.ok)
+      throw Boom.internal('Error obtaining Facebook user info')
+    const profile = (await meResponse.json()) as { id: string; name: string }
 
     return {
       socialType: SocialType.FACEBOOK,
-      socialAccountId: profile.id, 
+      socialAccountId: profile.id,
       token: data.access_token,
       expires: new Date(Date.now() + data.expires_in * 1000),
     }
@@ -206,6 +213,35 @@ class AuthService {
       expires: new Date(Date.now() + data.expires_in * 1000),
     }
   }
-}
 
+  async youtubeCallback(code: string): Promise<SocialConnectionDTO> {
+    const config = callbackProviders[SocialType.YOUTUBE] as CallbackConfig
+
+    const { data } = await axios.post<YouTubeAuthResponse>(
+      config.tokenUrl,
+      null,
+      {
+        params: {
+          client_id: config.clientId,
+          client_secret: config.clientSecret,
+          code,
+          redirect_uri: config.redirectUri,
+          grant_type: config.grantType,
+        },
+      }
+    )
+
+    if (!data) throw Boom.internal('Error obtaining YouTube token')
+    console.log(data)
+
+    return {
+      socialType: SocialType.YOUTUBE,
+      token: data.access_token,
+      expires: new Date(Date.now() + data.expires_in * 1000),
+      refreshToken: data.refresh_token,
+      scope: data.scope,
+      tokenType: data.token_type,
+    }
+  }
+}
 export default AuthService

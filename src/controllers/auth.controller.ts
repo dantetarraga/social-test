@@ -123,6 +123,24 @@ class AuthController {
       message: 'Instagram login successful',
     })
   }
+
+  static async youtubeCallback(req: Request, res: Response): Promise<Response> {
+    const { code, state } = req.query as { code: string; state: string }
+    const profileId = state.split('-')[1]
+
+    const response = await authService.youtubeCallback(code as string)
+
+    const savedConnection = await socialConnectionService.saveConnectionToYouTube(
+      Number(profileId),
+      response
+    )
+
+    return res.status(200).json({
+      success: true,
+      data: savedConnection,
+      message: 'YouTube login successful',
+    })
+  }
 }
 
 export default AuthController
