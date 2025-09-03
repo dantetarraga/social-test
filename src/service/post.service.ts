@@ -62,7 +62,7 @@ class PostService {
   async getPostsByProfile(profileId: number) {
     return await this.postRepo.find({
       where: { profiles: { id: profileId } },
-      relations: ['media', 'profiles', 'socialConnections'],
+      relations: ['profiles', 'socialConnections'],
     })
   }
 
@@ -70,7 +70,7 @@ class PostService {
     await this.postRepo.update(postId, updateData)
     return await this.postRepo.findOne({
       where: { id: postId },
-      relations: ['media', 'profiles', 'socialConnections'],
+      relations: ['profiles', 'socialConnections'],
     })
   }
 
