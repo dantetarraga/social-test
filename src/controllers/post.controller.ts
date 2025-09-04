@@ -13,7 +13,6 @@ class PostController {
     data.socialIds = JSON.parse(data.socialIds).map((id: string | number) => Number(id))
 
     const post = await postService.createPost(
-      Number(userId),
       data as CreatePostDTO,
       files
     )

@@ -16,7 +16,6 @@ class PostService {
   }
 
   async createPost(
-    userId: number,
     data: CreatePostDTO,
     files: Express.Multer.File[]
   ) {
