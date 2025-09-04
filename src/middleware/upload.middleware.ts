@@ -1,15 +1,25 @@
 import multer from "multer";
 import path from "path";
 import { Request } from "express";
+import fs from "fs";
+import crypto from "crypto";
+
+const uploadDir = path.join(__dirname, "../../uploads/posts");
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, "../../uploads/posts"));
   },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+  filename: (req: Request, file, cb) => {
+    const userId = req.user!.id;
+    const randomId = crypto.randomBytes(4).toString("hex");
     const ext = path.extname(file.originalname);
-    cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
+
+    cb(null, `${userId}_${randomId}${ext}`);
   },
 });
 

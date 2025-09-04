@@ -10,12 +10,18 @@ function generateFilename(userId: number, originalname: string): string {
 }
 
 function moveFile(tempPath: string, destPath: string): void {
+  const dir = path.dirname(destPath); 
+
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true }); 
+  }
+
   fs.renameSync(tempPath, destPath);
 }
 
 function buildMediaItem(file: Express.Multer.File, filename: string): MediaItem {
   return {
-    url: `/uploads/posts/${filename}`,
+    url: `/uploads/poststest/${filename}`,
     type: file.mimetype.startsWith("image") ? "image" : "video",
     filename,
   };
@@ -24,7 +30,7 @@ function buildMediaItem(file: Express.Multer.File, filename: string): MediaItem 
 export function processFiles(files: Express.Multer.File[], userId: number): MediaItem[] {
   return files.map((file) => {
     const filename = generateFilename(userId, file.originalname);
-    const destPath = path.join("uploads/posts", filename);
+    const destPath = path.join("uploads/poststest", filename);
 
     moveFile(file.path, destPath);
 

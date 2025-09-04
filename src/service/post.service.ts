@@ -3,7 +3,6 @@ import { CreatePostDTO, MediaItem } from '@/schema'
 import { In, Repository } from 'typeorm'
 import { Post, Profile, SocialConnection } from '@/models'
 import { processFiles } from '@/helpers'
-import { json } from 'zod'
 
 class PostService {
   private postRepo: Repository<Post>
@@ -29,9 +28,15 @@ class PostService {
     })
     if (!profile) throw new Error('Perfil no encontrado')
 
-    const media: MediaItem[] = processFiles(files, userId)
+    const media: MediaItem[] = files.map((file) => ({
+      url: `/uploads/poststest/${file.filename}`, 
+      type: file.mimetype.startsWith('image') ? 'image' : 'video',
+      filename: file.filename,
+    }))
 
-    const socialConnections = await this.connectionRepo.findBy({ id: In(socialIds) })
+    const socialConnections = await this.connectionRepo.findBy({
+      id: In(socialIds),
+    })
 
     const newPost = this.postRepo.create({
       content,
