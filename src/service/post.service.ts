@@ -3,6 +3,7 @@ import { CreatePostDTO, MediaItem } from '@/schema'
 import { In, Repository } from 'typeorm'
 import { Post, Profile, SocialConnection } from '@/models'
 import { processFiles } from '@/helpers'
+import { json } from 'zod'
 
 class PostService {
   private postRepo: Repository<Post>
@@ -20,7 +21,7 @@ class PostService {
     data: CreatePostDTO,
     files: Express.Multer.File[]
   ) {
-    const { content, scheduledAt, profileId, socialIds } = data
+    let { content, scheduledAt, profileId, socialIds } = data
 
     const profile = await this.profileRepo.findOne({
       where: { id: profileId },

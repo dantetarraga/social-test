@@ -7,12 +7,14 @@ const postService = new PostService()
 class PostController {
   static async createPost(req: Request, res: Response): Promise<Response> {
     const userId = req.user!.id
-    const data = req.body as CreatePostDTO
+    let data = req.body
     const files = req.files as Express.Multer.File[]
+
+    data.socialIds = JSON.parse(data.socialIds).map((id: string | number) => Number(id))
 
     const post = await postService.createPost(
       Number(userId),
-      data,
+      data as CreatePostDTO,
       files
     )
 
