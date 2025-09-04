@@ -24,5 +24,8 @@ export const createPostSchema = z
     }
   })
 
+export const updatePostSchema = createPostSchema.partial()
+
+export type UpdatePostDTO = z.infer<typeof updatePostSchema>
 export type CreatePostDTO = z.infer<typeof createPostSchema>
 export type MediaItem = z.infer<typeof mediaSchema>

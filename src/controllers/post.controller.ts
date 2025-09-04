@@ -41,9 +41,12 @@ class PostController {
 
   static async updatePost(req: Request, res: Response): Promise<Response> {
     const postId = req.params.postId
-    const updateData = req.body
+    let updateData = req.body
+    const files = req.files as Express.Multer.File[]
 
-    const updatedPost = await postService.updatePost(Number(postId), updateData)
+    updateData.socialIds = JSON.parse(updateData.socialIds).map((id: string | number) => Number(id))
+
+    const updatedPost = await postService.updatePost(Number(postId), updateData, files)
 
     return res.status(200).json({
       success: true,
