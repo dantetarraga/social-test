@@ -1,18 +1,14 @@
 import { PostController } from '@/controllers'
-import { authenticateToken, validateSchema } from '@/middleware'
+import { authenticateToken, uploadArray, validateSchema } from '@/middleware'
 import { createPostSchema } from '@/schema'
 import { Router } from 'express'
-import multer from "multer"
 
 const postRouter = Router()
-
-const upload = multer({ dest: "uploads/posts" })
 
 postRouter.post(
   '',
   authenticateToken,
-  upload.array("media"),
-  // validateSchema(createPostSchema, 'body'),
+  uploadArray('media', 10),
   PostController.createPost
 )
 
@@ -33,5 +29,7 @@ postRouter.get(
   authenticateToken,
   PostController.getPostsByProfile
 )
+
+postRouter.get('', authenticateToken, PostController.getAllPosts)
 
 export default postRouter

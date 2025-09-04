@@ -44,7 +44,7 @@ authRouter.post(
   AuthController.generateAuthUrl
 )
 
-// Callbacks
+// Callback to TIKTOK, FACEBOOK, INSTAGRAM, YOUTUBE
 authRouter.get('/:platform/callback', AuthController.socialCallback)
 
 export default authRouter

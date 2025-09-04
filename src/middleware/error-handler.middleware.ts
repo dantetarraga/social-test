@@ -1,6 +1,7 @@
 import { ErrorRequestHandler, NextFunction, Response, Request } from 'express'
 import Boom from '@hapi/boom'
 import { JsonWebTokenError } from 'jsonwebtoken'
+import multer from 'multer'
 
 export const errorHandler: ErrorRequestHandler = (
   err: any,
@@ -30,7 +31,26 @@ export const errorHandler: ErrorRequestHandler = (
   })
 }
 
-export const logErrors = (err: any, req: Request, res: Response, next: NextFunction) => {
+export const logErrors = (
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   console.error(err)
   next(err)
+}
+
+export function multerErrorHandler(
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  if (err instanceof multer.MulterError) {
+    return Boom.badRequest(err.message)
+  } else if (err) {
+    return Boom.internal(err.message)
+  }
+  next()
 }

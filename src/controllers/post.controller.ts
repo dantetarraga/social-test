@@ -1,3 +1,4 @@
+import { CreatePostDTO } from '@/schema'
 import { PostService } from '@/service'
 import { Response, Request } from 'express'
 
@@ -6,25 +7,13 @@ const postService = new PostService()
 class PostController {
   static async createPost(req: Request, res: Response): Promise<Response> {
     const userId = req.user!.id
-
-    const { profileId, content, scheduledAt, socialIds } = req.body
-
+    const data = req.body as CreatePostDTO
     const files = req.files as Express.Multer.File[]
-
-    let parsedSocialIds: number[] = []
-    if (typeof socialIds === 'string') {
-      parsedSocialIds = JSON.parse(socialIds)
-    } else if (Array.isArray(socialIds)) {
-      parsedSocialIds = socialIds.map((id: any) => Number(id))
-    }
 
     const post = await postService.createPost(
       Number(userId),
-      Number(profileId),
-      content,
-      scheduledAt,
-      files,
-      parsedSocialIds
+      data,
+      files
     )
 
     return res.status(201).json({
@@ -34,7 +23,10 @@ class PostController {
     })
   }
 
-  static async getPostsByProfile(req: Request, res: Response): Promise<Response> {
+  static async getPostsByProfile(
+    req: Request,
+    res: Response
+  ): Promise<Response> {
     const profileId = req.params.profileId
 
     const posts = await postService.getPostsByProfile(Number(profileId))
@@ -67,6 +59,17 @@ class PostController {
     return res.status(204).json({
       success: true,
       message: 'Post deleted successfully',
+    })
+  }
+
+  static async getAllPosts(req: Request, res: Response): Promise<Response> {
+    const userId = req.user!.id
+
+    const posts = await postService.getAllPosts(userId)
+    return res.status(200).json({
+      success: true,
+      data: posts,
+      message: 'Posts retrieved successfully',
     })
   }
 }

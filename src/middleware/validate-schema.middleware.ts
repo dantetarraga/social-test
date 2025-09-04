@@ -1,12 +1,14 @@
 import { Request, Response, NextFunction } from 'express'
 import { ZodType } from 'zod'
 import boom from '@hapi/boom'
+import z from 'zod'
 
 type RequestProperty = 'body' | 'params' | 'query'
 
 export const validateSchema = (schema: ZodType, property: RequestProperty) => {
   return (req: Request, _res: Response, next: NextFunction) => {
     const data = req[property]
+    
     const result = schema.safeParse(data)
 
     if (!result.success) {
