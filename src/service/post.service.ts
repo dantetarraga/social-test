@@ -21,7 +21,7 @@ class PostService {
     data: CreatePostDTO,
     files: Express.Multer.File[]
   ) {
-    let { content, scheduledAt, profileId, socialIds } = data
+    const { content, scheduledAt, profileId, socialIds } = data
 
     const profile = await this.profileRepo.findOne({
       where: { id: profileId },
