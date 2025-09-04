@@ -1,4 +1,4 @@
-import { SocialType } from '@/types'
+import { SocialConnectionDTO, SocialType } from '@/types'
 import { Request, Response } from 'express'
 import { AuthService, SocialConnectionService } from '@/service'
 
@@ -64,81 +64,43 @@ class AuthController {
       success: true,
       data: {
         redirectUrl,
-        platform
+        platform,
       },
       message: 'Redirect URL generated successfully',
     })
   }
 
-  static async tiktokCallback(req: Request, res: Response): Promise<Response> {
+  static async socialCallback(req: Request, res: Response): Promise<Response> {
     const { code, state } = req.query as { code: string; state: string }
-    const profileId = state.split('-')[1]
+    const profileId = Number(state.split('-')[1])
+    const { platform } = req.params as { platform: SocialType }
 
-    const response = await authService.tiktokCallback(code as string)
+    const authCallbacks: Record<SocialType, (code: string) => Promise<SocialConnectionDTO>> = {
+      tiktok: authService.tiktokCallback,
+      facebook: authService.facebookCallback,
+      instagram: authService.instagramCallback,
+      youtube: authService.youtubeCallback,
+    }
 
-    const savedConnection = await socialConnectionService.saveConnectionToTikTok(
-      Number(profileId),
+    if (!authCallbacks[platform]) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Unsupported platform' })
+    }
+
+    const response = await authCallbacks[platform](code)
+
+    const savedConnection = await socialConnectionService.saveConnection(
+      profileId,
       response
     )
 
     return res.status(200).json({
       success: true,
       data: savedConnection,
-      message: 'TikTok login successful',
-    })
-  }
-
-  static async facebookCallback(req: Request, res: Response): Promise<Response> {
-    const { code, state } = req.query as { code: string; state: string }
-    const profileId = state.split('-')[1]
-
-    const response = await authService.facebookCallback(code as string)
-
-    const savedConnection = await socialConnectionService.saveConnectionToFacebook(
-      Number(profileId),
-      response
-    )
-
-    return res.status(200).json({
-      success: true,
-      data: savedConnection,
-      message: 'Facebook login successful',
-    })
-  }
-
-  static async instagramCallback(req: Request, res: Response): Promise<Response> {
-    const { code, state } = req.query as { code: string; state: string }
-    const profileId = state.split('-')[1]
-
-    const response = await authService.instagramCallback(code as string)
-
-    const savedConnection = await socialConnectionService.saveConnectionToInstagram(
-      Number(profileId),
-      response
-    )
-
-    return res.status(200).json({
-      success: true,
-      data: savedConnection,
-      message: 'Instagram login successful',
-    })
-  }
-
-  static async youtubeCallback(req: Request, res: Response): Promise<Response> {
-    const { code, state } = req.query as { code: string; state: string }
-    const profileId = state.split('-')[1]
-
-    const response = await authService.youtubeCallback(code as string)
-
-    const savedConnection = await socialConnectionService.saveConnectionToYouTube(
-      Number(profileId),
-      response
-    )
-
-    return res.status(200).json({
-      success: true,
-      data: savedConnection,
-      message: 'YouTube login successful',
+      message: `${
+        platform.charAt(0).toUpperCase() + platform.slice(1)
+      } login successful`,
     })
   }
 }

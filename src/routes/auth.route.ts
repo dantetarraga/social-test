@@ -45,9 +45,6 @@ authRouter.post(
 )
 
 // Callbacks
-authRouter.get('/tiktok/callback', AuthController.tiktokCallback)
-authRouter.get('/facebook/callback', AuthController.facebookCallback)
-authRouter.get('/instagram/callback', AuthController.instagramCallback)
-authRouter.get('/youtube/callback', AuthController.youtubeCallback)
+authRouter.get('/:platform/callback', AuthController.socialCallback)
 
 export default authRouter
