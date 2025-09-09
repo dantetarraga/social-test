@@ -138,7 +138,7 @@ class AuthService {
   async tiktokCallback(code: string): Promise<SocialConnectionDTO> {
     const config = callbackProviders[SocialType.TIKTOK] as CallbackConfig
 
-    const { data } = await axios.get<TikTokAuthResponse>(config.tokenUrl, {
+    const { data } = await axios.post<TikTokAuthResponse>(config.tokenUrl, {
       params: {
         client_key: config.clientId,
         client_secret: config.clientSecret,

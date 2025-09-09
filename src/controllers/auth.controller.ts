@@ -82,14 +82,7 @@ class AuthController {
       youtube: authService.youtubeCallback,
     }
 
-    if (!authCallbacks[platform]) {
-      return res
-        .status(400)
-        .json({ success: false, message: 'Unsupported platform' })
-    }
-
     const response = await authCallbacks[platform](code)
-
     const savedConnection = await socialConnectionService.saveConnection(
       profileId,
       response

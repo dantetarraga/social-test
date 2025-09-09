@@ -8,7 +8,7 @@ export const providers = {
     clientId: process.env.TIKTOK_CLIENT_KEY!,
     clientIdParam: 'client_key',
     redirectUri: process.env.TIKTOK_REDIRECT_URI!,
-    scope: 'user.info.basic user.info.profile video.upload video.publish',
+    scope: 'user.info.basic,user.info.profile,video.list,video.upload',
     responseType: 'code',
   },
   [SocialType.FACEBOOK]: {
