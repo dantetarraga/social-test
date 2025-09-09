@@ -138,14 +138,16 @@ class AuthService {
   async tiktokCallback(code: string): Promise<SocialConnectionDTO> {
     const config = callbackProviders[SocialType.TIKTOK] as CallbackConfig
 
+    const params = new URLSearchParams({
+      client_key: config.clientId!,
+      client_secret: config.clientSecret!,
+      code,
+      grant_type: config.grantType!,
+      redirect_uri: config.redirectUri!,
+    })
+
     const { data } = await axios.post<TikTokAuthResponse>(config.tokenUrl, {
-      params: {
-        client_key: config.clientId,
-        client_secret: config.clientSecret,
-        code,
-        grant_type: config.grantType,
-        redirect_uri: config.redirectUri,
-      },
+      params: params.toString(),
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Cache-Control': 'no-cache',
