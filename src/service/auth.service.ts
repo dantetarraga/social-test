@@ -146,17 +146,20 @@ class AuthService {
       redirect_uri: config.redirectUri!,
     })
 
-    const { data } = await axios.post<TikTokAuthResponse>(config.tokenUrl, {
-      params: params.toString(),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Cache-Control': 'no-cache',
-      },
-    })
+    const { data } = await axios.post<TikTokAuthResponse>(
+      config.tokenUrl,
+      params,
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Cache-Control': 'no-cache',
+        },
+      }
+    )
 
     if (!data) throw Boom.internal('Error obtaining TikTok token')
 
-    console.log("Data TikTok:", data);
+    console.log('Data TikTok:', data)
 
     return {
       socialType: SocialType.TIKTOK,
