@@ -83,6 +83,17 @@ class ProfileService {
 
     await this.socialConnectionRepo.remove(connection)
   }
+
+  async getPostsByProfile(profileId: number) {
+    const profile = await this.profileRepo.findOne({
+      where: { id: profileId },
+      relations: ['posts', 'posts.socialConnections', 'posts.media'],
+    })
+
+    if (!profile) throw Boom.notFound('Profile not found')
+
+    return profile.posts
+  }
 }
 
 export default ProfileService

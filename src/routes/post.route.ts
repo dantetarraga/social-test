@@ -15,6 +15,7 @@ postRouter.post(
 postRouter.put(
   '/:postId',
   authenticateToken,
+  uploadArray('media', 10),
   PostController.updatePost
 )
 
@@ -25,9 +26,9 @@ postRouter.delete(
 )
 
 postRouter.get(
-  '/:profileId',
+  '/:postId',
   authenticateToken,
-  PostController.getPostsByProfile
+  PostController.getPostById
 )
 
 postRouter.get('', authenticateToken, PostController.getAllPosts)

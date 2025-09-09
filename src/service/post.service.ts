@@ -15,6 +15,15 @@ class PostService {
     this.connectionRepo = AppDataSource.getRepository(SocialConnection)
   }
 
+  async getPostById(postId: number) {
+    const post = await this.postRepo.findOne({
+      where: { id: postId },
+      relations: ['profiles', 'socialConnections', 'media'],
+    })
+    if (!post) throw Boom.notFound('Post no encontrado')
+    return post
+  }
+
   async createPost(data: CreatePostDTO, files: Express.Multer.File[]) {
     const { content, scheduledAt, profileId, socialIds } = data
 
@@ -45,13 +54,6 @@ class PostService {
     return await this.postRepo.save(newPost)
   }
 
-  async getPostsByProfile(profileId: number) {
-    return await this.postRepo.find({
-      where: { profiles: { id: profileId } },
-      relations: ['profiles', 'socialConnections'],
-    })
-  }
-
   async updatePost(
     postId: number,
     updateData: UpdatePostDTO,
@@ -62,7 +64,7 @@ class PostService {
       relations: ['profiles', 'socialConnections', 'media'],
     })
 
-    if (!post) throw Boom.notFound('Post no encontrado')
+    if (!post) throw Boom.notFound('Post not found')
 
     if (updateData.content) post.content = updateData.content
     if (updateData.scheduledAt) post.scheduledAt = updateData.scheduledAt

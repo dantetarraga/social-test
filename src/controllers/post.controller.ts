@@ -24,18 +24,14 @@ class PostController {
     })
   }
 
-  static async getPostsByProfile(
-    req: Request,
-    res: Response
-  ): Promise<Response> {
-    const profileId = req.params.profileId
-
-    const posts = await postService.getPostsByProfile(Number(profileId))
+  static async getPostById(req: Request, res: Response): Promise<Response> {
+    const postId = req.params.postId
+    const post = await postService.getPostById(Number(postId))
 
     return res.status(200).json({
       success: true,
-      data: posts,
-      message: 'Posts retrieved successfully',
+      data: post,
+      message: 'Post retrieved successfully',
     })
   }
 

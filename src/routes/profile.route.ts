@@ -50,4 +50,11 @@ profileRouter.delete(
   ProfileController.disconnect
 )
 
+profileRouter.get(
+  '/:id/posts',
+  authenticateToken,
+  ProfileController.getPostsByProfile
+  
+)
+
 export default profileRouter
