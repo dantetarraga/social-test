@@ -25,6 +25,12 @@ export class SocialConnection {
   @Column({ type: 'timestamp', nullable: true })
   refreshExpires!: Date
 
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  tokenType!: string
+
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  scope!: string
+
   @ManyToOne(() => Profile, (profile) => profile.connections, { onDelete: 'CASCADE' })
   profile!: Profile
 }

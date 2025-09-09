@@ -159,8 +159,6 @@ class AuthService {
 
     if (!data) throw Boom.internal('Error obtaining TikTok token')
 
-    console.log('Data TikTok:', data)
-
     return {
       socialType: SocialType.TIKTOK,
       socialAccountId: data.open_id,
@@ -169,6 +167,7 @@ class AuthService {
       refreshToken: data.refresh_token,
       refreshExpires: new Date(Date.now() + data.refresh_expires_in * 1000),
       scope: data.scope,
+      tokenType: data.token_type,
     }
   }
 
