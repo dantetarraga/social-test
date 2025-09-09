@@ -1,4 +1,4 @@
-import { PostController } from '@/controllers'
+import { PostController, SocialPublisherController } from '@/controllers'
 import { authenticateToken, uploadArray, validateSchema } from '@/middleware'
 import { createPostSchema } from '@/schema'
 import { Router } from 'express'
@@ -32,5 +32,11 @@ postRouter.get(
 )
 
 postRouter.get('', authenticateToken, PostController.getAllPosts)
+
+postRouter.post(
+  '/publish',
+  authenticateToken,
+  SocialPublisherController.publishPost
+)
 
 export default postRouter
