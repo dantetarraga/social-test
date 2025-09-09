@@ -10,12 +10,11 @@ class PostController {
     let data = req.body
     const files = req.files as Express.Multer.File[]
 
-    data.socialIds = JSON.parse(data.socialIds).map((id: string | number) => Number(id))
-
-    const post = await postService.createPost(
-      data as CreatePostDTO,
-      files
+    data.socialIds = JSON.parse(data.socialIds).map((id: string | number) =>
+      Number(id)
     )
+
+    const post = await postService.createPost(data as CreatePostDTO, files)
 
     return res.status(201).json({
       success: true,
@@ -40,9 +39,17 @@ class PostController {
     let updateData = req.body
     const files = req.files as Express.Multer.File[]
 
-    updateData.socialIds = JSON.parse(updateData.socialIds).map((id: string | number) => Number(id))
+    if (updateData.socialIds) {
+      updateData.socialIds = JSON.parse(updateData.socialIds).map(
+        (id: string | number) => Number(id)
+      )
+    }
 
-    const updatedPost = await postService.updatePost(Number(postId), updateData, files)
+    const updatedPost = await postService.updatePost(
+      Number(postId),
+      updateData,
+      files
+    )
 
     return res.status(200).json({
       success: true,

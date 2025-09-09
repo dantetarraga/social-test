@@ -61,7 +61,7 @@ class PostService {
   ) {
     const post = await this.postRepo.findOne({
       where: { id: postId },
-      relations: ['profiles', 'socialConnections', 'media'],
+      relations: ['profiles', 'socialConnections'], 
     })
 
     if (!post) throw Boom.notFound('Post not found')
@@ -78,7 +78,7 @@ class PostService {
 
     if (files && files.length > 0) {
       const newMedia: MediaItem[] = files.map((file) => ({
-        url: `/uploads/poststest/${file.filename}`,
+        url: `/uploads/posts/${file.filename}`,
         type: file.mimetype.startsWith('image') ? 'image' : 'video',
         filename: file.filename,
       }))
