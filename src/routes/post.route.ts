@@ -1,4 +1,5 @@
-import { PostController, SocialPublisherController } from '@/controllers'
+import { PostController,  } from '@/controllers'
+import SocialMediaPublisherController from '@/controllers/social-publisher.controller'
 import { authenticateToken, uploadArray, validateSchema } from '@/middleware'
 import { createPostSchema } from '@/schema'
 import { Router } from 'express'
@@ -36,7 +37,7 @@ postRouter.get('', authenticateToken, PostController.getAllPosts)
 postRouter.post(
   '/publish',
   authenticateToken,
-  SocialPublisherController.publishPost
+  SocialMediaPublisherController.publishPost
 )
 
 export default postRouter

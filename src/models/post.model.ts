@@ -17,6 +17,9 @@ export class Post {
   @Column({ type: "timestamp" })
   scheduledAt!: Date;
 
+  @Column({ type: "varchar", default: "scheduled" })
+  status!: 'scheduled' | 'published' | 'failed';
+
   @ManyToMany(() => SocialConnection, { cascade: true })
   @JoinTable()
   socialConnections!: SocialConnection[];
