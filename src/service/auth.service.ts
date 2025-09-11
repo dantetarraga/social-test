@@ -173,29 +173,43 @@ class AuthService {
 
   async facebookCallback(code: string): Promise<SocialConnectionDTO> {
     const config = callbackProviders[SocialType.FACEBOOK] as CallbackConfig
-    const { data } = await axios.get<FacebookAuthResponse>(config.tokenUrl, {
-      params: {
-        client_id: config.clientId,
-        client_secret: config.clientSecret,
-        code,
-        redirect_uri: config.redirectUri,
-      },
-    })
+    try {
+      const { data } = await axios.get<FacebookAuthResponse>(config.tokenUrl, {
+        params: {
+          client_id: config.clientId,
+          client_secret: config.clientSecret,
+          redirect_uri: config.redirectUri,
+          code,
+        },
+      })
 
-    if (!data) throw Boom.internal('Error obtaining Facebook token')
-    const meResponse = await fetch(
-      `https://graph.facebook.com/me?access_token=${data.access_token}`
-    )
+      console.log('Facebook token response:', data)
 
-    if (!meResponse.ok)
-      throw Boom.internal('Error obtaining Facebook user info')
-    const profile = (await meResponse.json()) as { id: string; name: string }
+      if (!data) throw Boom.internal('Error obtaining Facebook token')
 
-    return {
-      socialType: SocialType.FACEBOOK,
-      socialAccountId: profile.id,
-      token: data.access_token,
-      expires: new Date(Date.now() + data.expires_in * 1000),
+      const meResponse = await fetch(
+        `https://graph.facebook.com/me?access_token=${data.access_token}`
+      )
+      if (!meResponse.ok) {
+        const err = await meResponse.json()
+        console.error('Facebook /me error:', err)
+        throw Boom.internal('Error obtaining Facebook user info')
+      }
+
+      const profile = (await meResponse.json()) as { id: string; name: string }
+
+      return {
+        socialType: SocialType.FACEBOOK,
+        socialAccountId: profile.id,
+        token: data.access_token,
+        expires: new Date(Date.now() + data.expires_in * 1000),
+      }
+    } catch (err: any) {
+      console.error(
+        'Facebook callback error:',
+        err.response?.data || err.message
+      )
+      throw Boom.internal('Facebook OAuth error')
     }
   }
 
@@ -211,7 +225,7 @@ class AuthService {
       },
     })
 
-    console.log("Instagram data:", data);
+    console.log('Instagram data:', data)
 
     if (!data) throw Boom.internal('Error obtaining Instagram token')
 
