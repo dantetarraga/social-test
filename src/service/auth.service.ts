@@ -197,6 +197,8 @@ class AuthService {
       }
     )
 
+    console.log('Facebook accounts data:', accountsData)
+
     const pages = accountsData.data.map((page: PageFacebookResponse) => ({
       pageId: page.id,
       pageName: page.name,
