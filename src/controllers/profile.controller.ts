@@ -107,7 +107,7 @@ class ProfileController {
     req: Request,
     res: Response
   ): Promise<Response> {
-    const profileId = parseInt(req.params.profileId)
+    const profileId = parseInt(req.params.id)
 
     const response = await profileService.getPostsByProfile(profileId)
     return res.status(200).json({
