@@ -176,13 +176,15 @@ class AuthService {
 
     const config = callbackProviders[SocialType.FACEBOOK] as CallbackConfig
     try {
+      const params = new URLSearchParams({
+        client_id: config.clientId!,
+        client_secret: config.clientSecret!,
+        redirect_uri: config.redirectUri!,
+        code,
+      })
+
       const { data } = await axios.get<FacebookAuthResponse>(config.tokenUrl, {
-        params: {
-          client_id: config.clientId,
-          client_secret: config.clientSecret,
-          redirect_uri: config.redirectUri,
-          code,
-        },
+        params
       })
 
       console.log('Facebook token response:', data)
