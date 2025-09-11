@@ -1,6 +1,7 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 import { Profile } from './profile.model'
 import { SocialType } from '@/types'
+import { PageConnection } from './page-connection.model'
 
 @Entity()
 export class SocialConnection {
@@ -33,4 +34,7 @@ export class SocialConnection {
 
   @ManyToOne(() => Profile, (profile) => profile.connections, { onDelete: 'CASCADE' })
   profile!: Profile
+
+  @OneToMany(() => PageConnection, (page) => page.socialConnection, { cascade: true })
+  pages!: PageConnection[]
 }

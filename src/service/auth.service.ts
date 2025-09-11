@@ -211,6 +211,8 @@ class AuthService {
       },
     })
 
+    console.log("Instagram data:", data);
+
     if (!data) throw Boom.internal('Error obtaining Instagram token')
 
     return {
