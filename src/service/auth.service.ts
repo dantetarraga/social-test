@@ -172,6 +172,8 @@ class AuthService {
   }
 
   async facebookCallback(code: string): Promise<SocialConnectionDTO> {
+    console.log('Facebook callback initiated with code:', code)
+
     const config = callbackProviders[SocialType.FACEBOOK] as CallbackConfig
     try {
       const { data } = await axios.get<FacebookAuthResponse>(config.tokenUrl, {
