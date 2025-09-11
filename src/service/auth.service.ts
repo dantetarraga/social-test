@@ -203,12 +203,10 @@ class AuthService {
       pageToken: page.access_token,
     }))
 
-    console.log("data:", data)
-
     return {
       socialType: SocialType.FACEBOOK,
       token: data.access_token,
-      expires: new Date(Date.now() + data.expires_in * 1000),
+      tokenType: data.token_type,
       pages, 
     }
   }

@@ -39,7 +39,7 @@ export interface SocialConnectionDTO {
   socialType: SocialType
   socialAccountId?: string
   token: string
-  expires: Date
+  expires?: Date
   refreshToken?: string
   refreshExpires?: Date
   scope?: string
