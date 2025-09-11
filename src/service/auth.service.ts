@@ -203,6 +203,8 @@ class AuthService {
       pageToken: page.access_token,
     }))
 
+    console.log("data:", data)
+
     return {
       socialType: SocialType.FACEBOOK,
       token: data.access_token,
