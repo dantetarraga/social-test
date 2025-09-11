@@ -16,7 +16,7 @@ export const providers = {
     clientId: process.env.FACEBOOK_APP_ID!,
     clientIdParam: 'client_id',
     redirectUri: process.env.FACEBOOK_REDIRECT_URI!,
-    scope: 'email,pages_show_list,pages_read_engagement,pages_manage_posts',
+    scope: 'email,publish_video,pages_show_list,pages_read_engagement,pages_read_user_content,pages_manage_posts,pages_manage_engagement',
     responseType: 'code',
   },
   [SocialType.INSTAGRAM]: {
