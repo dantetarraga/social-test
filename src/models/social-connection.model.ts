@@ -17,8 +17,8 @@ export class SocialConnection {
   @Column({ type: 'varchar', length: 500 })
   token!: string
 
-  @Column({ type: 'timestamp' })
-  expires!: Date
+  @Column({ type: 'timestamp', nullable: true })
+  expires?: Date
 
   @Column({ type: 'varchar', length: 500, nullable: true })
   refreshToken!: string
