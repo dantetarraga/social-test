@@ -82,8 +82,6 @@ class AuthController {
       youtube: authService.youtubeCallback,
     }
 
-    console.log("Code:: _>>>", code);
-
     console.log(`Received ${platform} callback with code:`, code)
     const response = await authCallbacks[platform](code)
     const savedConnection = await socialConnectionService.saveConnection(

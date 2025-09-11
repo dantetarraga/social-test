@@ -172,20 +172,31 @@ class AuthService {
   }
 
   async facebookCallback(code: string): Promise<SocialConnectionDTO> {
-    console.log('Facebook callback initiated with code:', code)
-
     const config = callbackProviders[SocialType.FACEBOOK] as CallbackConfig
-    try {
-      const params = new URLSearchParams({
-        client_id: config.clientId!,
-        client_secret: config.clientSecret!,
-        redirect_uri: config.redirectUri!,
-        code,
-      })
 
-      const { data } = await axios.get<FacebookAuthResponse>(config.tokenUrl, {
-        params
-      })
+    console.log('=== FACEBOOK CALLBACK DEBUG ===');
+    console.log('Code received:', code);
+    console.log('Config redirectUri:', config.redirectUri);
+    console.log('Token URL:', config.tokenUrl);
+
+    try {
+
+      const tokenParams = {
+      client_id: config.clientId,
+      client_secret: config.clientSecret,
+      redirect_uri: config.redirectUri,
+      code,
+    };
+    
+    console.log('Token request params:', tokenParams);
+    
+    const fullTokenUrl = `${config.tokenUrl}?${new URLSearchParams(tokenParams).toString()}`;
+    console.log('Full token URL:', fullTokenUrl);
+
+      
+    const { data } = await axios.get<FacebookAuthResponse>(config.tokenUrl, {
+      params: tokenParams
+    });
 
       console.log('Facebook token response:', data)
 
