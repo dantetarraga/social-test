@@ -21,7 +21,6 @@ class SocialConnectionService {
     })
 
     if (!profile) throw Boom.notFound('Profile not found')
-
     const connection = this.connectionRepo.create({
       ...data,
       profile,

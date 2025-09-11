@@ -29,6 +29,12 @@ export interface TikTokAuthResponse {
   token_type: 'Bearer'
 }
 
+export interface PageFacebookResponse {
+  id: string
+  name: string
+  access_token: string
+}
+
 export interface SocialConnectionDTO {
   socialType: SocialType
   socialAccountId?: string
@@ -38,12 +44,19 @@ export interface SocialConnectionDTO {
   refreshExpires?: Date
   scope?: string
   tokenType?: string
+  pages?: {
+    pageId: string
+    pageName: string
+    pageToken: string
+  }[]
 }
 
 export interface FacebookAuthResponse {
   access_token: string
   expires_in: number
   token_type: 'Bearer'
+  scope: string
+  pages: PageFacebookResponse[]
 }
 
 export interface InstagramAuthResponse {

@@ -18,6 +18,7 @@ import {
   FacebookAuthResponse,
   InstagramAuthResponse,
   LoginDTO,
+  PageFacebookResponse,
   ProviderConfig,
   RegisterDTO,
   ResetPasswordDTO,
@@ -174,57 +175,39 @@ class AuthService {
   async facebookCallback(code: string): Promise<SocialConnectionDTO> {
     const config = callbackProviders[SocialType.FACEBOOK] as CallbackConfig
 
-    console.log('=== FACEBOOK CALLBACK DEBUG ===');
-    console.log('Code received:', code);
-    console.log('Config redirectUri:', config.redirectUri);
-    console.log('Token URL:', config.tokenUrl);
-
-    try {
-
-      const tokenParams = {
-      client_id: config.clientId,
-      client_secret: config.clientSecret,
-      redirect_uri: config.redirectUri,
-      code,
-    };
-    
-    console.log('Token request params:', tokenParams);
-    
-    const fullTokenUrl = `${config.tokenUrl}?${new URLSearchParams(tokenParams).toString()}`;
-    console.log('Full token URL:', fullTokenUrl);
-
-      
     const { data } = await axios.get<FacebookAuthResponse>(config.tokenUrl, {
-      params: tokenParams
-    });
+      params: {
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: config.redirectUri,
+        code,
+      },
+    })
 
-      console.log('Facebook token response:', data)
+    if (!data.access_token) {
+      throw Boom.internal('Error obtaining Facebook access token')
+    }
 
-      if (!data) throw Boom.internal('Error obtaining Facebook token')
-
-      const meResponse = await fetch(
-        `https://graph.facebook.com/me?access_token=${data.access_token}`
-      )
-      if (!meResponse.ok) {
-        const err = await meResponse.json()
-        console.error('Facebook /me error:', err)
-        throw Boom.internal('Error obtaining Facebook user info')
+    const { data: accountsData } = await axios.get(
+      'https://graph.facebook.com/v23.0/me/accounts',
+      {
+        params: {
+          access_token: data.access_token,
+        },
       }
+    )
 
-      const profile = (await meResponse.json()) as { id: string; name: string }
+    const pages = accountsData.data.map((page: PageFacebookResponse) => ({
+      pageId: page.id,
+      pageName: page.name,
+      pageToken: page.access_token,
+    }))
 
-      return {
-        socialType: SocialType.FACEBOOK,
-        socialAccountId: profile.id,
-        token: data.access_token,
-        expires: new Date(Date.now() + data.expires_in * 1000),
-      }
-    } catch (err: any) {
-      console.error(
-        'Facebook callback error:',
-        err.response?.data || err.message
-      )
-      throw Boom.internal('Facebook OAuth error')
+    return {
+      socialType: SocialType.FACEBOOK,
+      token: data.access_token,
+      expires: new Date(Date.now() + data.expires_in * 1000),
+      pages, 
     }
   }
 

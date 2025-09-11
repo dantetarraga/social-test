@@ -36,5 +36,5 @@ export class SocialConnection {
   profile!: Profile
 
   @OneToMany(() => PageConnection, (page) => page.socialConnection, { cascade: true })
-  pages!: PageConnection[]
+  pages?: PageConnection[]
 }
