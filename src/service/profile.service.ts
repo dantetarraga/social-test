@@ -87,7 +87,7 @@ class ProfileService {
   async getPostsByProfile(profileId: number) {
     const profile = await this.profileRepo.findOne({
       where: { id: profileId },
-      relations: ['posts', 'posts.socialConnections', 'posts.media'],
+      relations: ['posts', 'posts.socialConnections'],
     })
 
     if (!profile) throw Boom.notFound('Profile not found')

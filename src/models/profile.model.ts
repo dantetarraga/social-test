@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -32,6 +33,6 @@ export class Profile {
   })
   connections!: SocialConnection[]
 
-  @OneToMany(() => Post, (post) => post.profiles)
+  @ManyToMany(() => Post, (post) => post.profiles)
   posts!: Post[]
 }
