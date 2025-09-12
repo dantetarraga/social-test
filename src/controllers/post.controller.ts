@@ -10,6 +10,8 @@ class PostController {
     let data = req.body
     const files = req.files as Express.Multer.File[]
 
+    console.log('req.body:', req.body)
+
     data.socialIds = JSON.parse(data.socialIds).map((id: string | number) =>
       Number(id)
     )

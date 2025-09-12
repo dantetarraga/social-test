@@ -1,5 +1,8 @@
 import { google } from 'googleapis'
 import { OAuth2Client } from 'google-auth-library'
+import { Post } from '@/models'
+import fs from 'fs'
+import path from 'path'
 
 class YoutubeService {
   private youtube
@@ -23,24 +26,33 @@ class YoutubeService {
     })
   }
 
-  async uploadVideo(file: NodeJS.ReadableStream, title: string, description: string) {
-    const response = await this.youtube.videos.insert({
-      part: ['snippet', 'status'],
-      requestBody: {
-        snippet: {
-          title,
-          description,
-        },
-        status: {
-          privacyStatus: 'public',
-        },
-      },
-      media: {
-        body: file,
-      },
-    })
+  async uploadVideo(post: Post) {
+    const results = []
 
-    return response.data
+    for (const media of post.media || []) {
+      const filePath = path.resolve(`./uploads/posts/${media.filename}`)
+      const fileStream = fs.createReadStream(filePath)
+
+      const response = await this.youtube.videos.insert({
+        part: ['snippet', 'status'],
+        requestBody: {
+          snippet: {
+            title: post.content,
+            description: post.content,
+          },
+          status: {
+            privacyStatus: 'private',
+          },
+        },
+        media: {
+          body: fileStream,
+        },
+      })
+
+      results.push(response.data)
+    }
+
+    return results
   }
 }
 

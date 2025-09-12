@@ -253,7 +253,6 @@ class AuthService {
     )
 
     if (!data) throw Boom.internal('Error obtaining YouTube token')
-    console.log('[YouTube Callback] Token response:', data)
 
     return {
       socialType: SocialType.YOUTUBE,

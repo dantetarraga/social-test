@@ -3,6 +3,7 @@ import { SocialType } from '@/types'
 import axios from 'axios'
 import fs from 'fs'
 import path from 'path'
+import YoutubeService from './youtube.service'
 
 class SocialMediaPublisherService {
   async publishPost(post: Post) {
@@ -14,9 +15,15 @@ class SocialMediaPublisherService {
         case SocialType.FACEBOOK:
           // await this.publishToFacebook(post, conn)
           break
-        // case SocialType.YOUTUBE:
-        //   await this.publishToYouTube(post, conn)
-        //   break
+        case SocialType.YOUTUBE:
+          const accessToken = conn.token
+          const refreshToken = conn.refreshToken
+
+          const youtubeService = new YoutubeService(accessToken, refreshToken)
+
+          const results = await youtubeService.uploadVideo(post)
+          console.log('YouTube upload results:', results)
+          break
         // case SocialType.INSTAGRAM:
         //   await this.publishToInstagram(post, conn)
         //   break

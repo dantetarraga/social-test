@@ -75,14 +75,15 @@ class AuthController {
     const profileId = Number(state.split('-')[1])
     const { platform } = req.params as { platform: SocialType }
 
-    const authCallbacks: Record<SocialType, (code: string) => Promise<SocialConnectionDTO>> = {
+    const authCallbacks: Record<
+      SocialType,
+      (code: string) => Promise<SocialConnectionDTO>
+    > = {
       tiktok: authService.tiktokCallback,
       facebook: authService.facebookCallback,
       instagram: authService.instagramCallback,
       youtube: authService.youtubeCallback,
     }
-
-    console.log(`Received ${platform} callback with code:`, code)
 
     const response = await authCallbacks[platform](code)
     const savedConnection = await socialConnectionService.saveConnection(
