@@ -197,8 +197,6 @@ class AuthService {
       }
     )
 
-    console.log('Facebook accounts data:', accountsData)
-
     const pages = accountsData.data.map((page: PageFacebookResponse) => ({
       pageId: page.id,
       pageName: page.name,
@@ -236,7 +234,8 @@ class AuthService {
     }
   }
 
-  async youtubeCallback(code: string): Promise<SocialConnectionDTO> {
+ async youtubeCallback(code: string): Promise<SocialConnectionDTO> {
+  try {
     const config = callbackProviders[SocialType.YOUTUBE] as CallbackConfig
 
     const { data } = await axios.post<YouTubeAuthResponse>(
@@ -254,7 +253,7 @@ class AuthService {
     )
 
     if (!data) throw Boom.internal('Error obtaining YouTube token')
-    console.log(data)
+    console.log('[YouTube Callback] Token response:', data)
 
     return {
       socialType: SocialType.YOUTUBE,
@@ -264,6 +263,15 @@ class AuthService {
       scope: data.scope,
       tokenType: data.token_type,
     }
+  } catch (error: any) {
+    console.error('[YouTube Callback] Error:', {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data,
+    })
+    throw Boom.internal('Failed to exchange code for YouTube token')
   }
+}
+
 }
 export default AuthService

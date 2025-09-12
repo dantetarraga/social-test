@@ -33,7 +33,7 @@ export const providers = {
     clientId: process.env.YOUTUBE_CLIENT_ID!,
     clientIdParam: 'client_id',
     redirectUri: process.env.YOUTUBE_REDIRECT_URI!,
-    scope: 'https://www.googleapis.com/auth/drive',
+    scope: 'https://www.googleapis.com/auth/youtube.upload',
     responseType: 'code',
     accessType: 'offline',
     prompt: 'consent',
