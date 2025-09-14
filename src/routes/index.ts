@@ -1,9 +1,9 @@
 import express from "express";
 import { Router } from "express";
 
-import authRouter from "./auth.route";
-import profileRouter from "./profile.route";
-import postRouter from "./post.route";
+import authRouter from "./auth.routes";
+import postRouter from "./post.routes";
+import profileRouter from "./profile.routes";
 
 
 function routerApi(app: express.Application) {

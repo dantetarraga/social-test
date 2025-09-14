@@ -1,4 +1,4 @@
-import { Rol } from '@/types/user.types'
+import { ROLE } from '@/types/user.types'
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 import { Profile } from './profile.model'
 
@@ -7,7 +7,7 @@ export class User {
   @PrimaryGeneratedColumn()
   id!: number
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
+  @Column({ type: 'varchar', length: 100 })
   fullName!: string
 
   @Column({ type: 'varchar', length: 100, unique: true })
@@ -16,9 +16,9 @@ export class User {
   @Column({ type: 'varchar', length: 100 })
   password!: string
 
-  @Column({ type: 'enum', enum: Rol, default: Rol.USER })
-  role!: Rol
+  @Column({ type: 'enum', enum: ROLE, default: ROLE.USER })
+  role!: ROLE
 
   @OneToMany(() => Profile, (profile) => profile.user, { cascade: true })
-  profiles!: Profile[]
+  profiles!: Profile[];
 }

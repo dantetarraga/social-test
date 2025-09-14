@@ -1,5 +1,12 @@
-import z from "zod";
-import { createProfileSchema, updateProfileSchema } from "@/schema";
+export interface ProfileWithConnections {
+  id: number
+  name: string
+  description: string
+  color?: string
+  connections: any[] 
+}
 
-export type CreateProfileDTO = z.infer<typeof createProfileSchema>
-export type UpdateProfileDTO = z.infer<typeof updateProfileSchema>
+export interface ProfileResponse extends Omit<ProfileWithConnections, 'connections'> {
+  createdAt: Date
+  updatedAt: Date
+}

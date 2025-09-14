@@ -11,6 +11,7 @@ import {
 import { Profile } from './profile.model'
 import { PostMedia } from '@/schemas/post.schemas'
 import { SocialConnection } from './social-connection.model'
+import { PostStatus } from '@/types/post.types'
 
 @Entity()
 export class Post {
@@ -23,11 +24,14 @@ export class Post {
   @Column({ type: 'simple-json', nullable: true })
   media?: PostMedia[]
 
-  @Column({ type: 'timestamp' })
-  scheduledAt!: Date
+  @Column({ type: 'date', nullable: true, default: () => 'CURRENT_DATE' })
+  scheduledDate!: Date 
 
-  @Column({ type: 'varchar', default: 'scheduled' })
-  status!: 'scheduled' | 'published' | 'failed'
+  @Column({ type: 'time', nullable: true, default: () => 'CURRENT_TIME' })
+  scheduledTime!: string
+
+  @Column({ type: 'varchar', default: PostStatus.SCHEDULED })
+  status!: PostStatus
 
   @ManyToMany(() => SocialConnection, { cascade: true })
   @JoinTable()
