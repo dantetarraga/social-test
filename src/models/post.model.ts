@@ -1,30 +1,46 @@
-import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Profile } from "./profile.model";
-import { MediaItem } from "@/schema";
-import { SocialConnection } from "./social-connection.model";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm'
+import { Profile } from './profile.model'
+import { PostMedia } from '@/schemas/post.schemas'
+import { SocialConnection } from './social-connection.model'
 
 @Entity()
 export class Post {
   @PrimaryGeneratedColumn()
-  id!: number;
+  id!: number
 
-  @Column({ type: "text" })
-  content!: string;
+  @Column({ type: 'text' })
+  content!: string
 
-  @Column({ type: "simple-json", nullable: true })
-  media?: MediaItem[];
+  @Column({ type: 'simple-json', nullable: true })
+  media?: PostMedia[]
 
-  @Column({ type: "timestamp" })
-  scheduledAt!: Date;
+  @Column({ type: 'timestamp' })
+  scheduledAt!: Date
 
-  @Column({ type: "varchar", default: "scheduled" })
-  status!: 'scheduled' | 'published' | 'failed';
+  @Column({ type: 'varchar', default: 'scheduled' })
+  status!: 'scheduled' | 'published' | 'failed'
 
   @ManyToMany(() => SocialConnection, { cascade: true })
   @JoinTable()
-  socialConnections!: SocialConnection[];
+  socialConnections!: SocialConnection[]
 
-  @ManyToMany(() => Profile, (profile) => profile.posts, { cascade: true })
-  @JoinTable()
-  profiles!: Profile[];
+  @ManyToOne(() => Profile, (profile) => profile.posts, {
+    onDelete: 'CASCADE', 
+  })
+  profile!: Profile
+
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt!: Date
+
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt!: Date
 }

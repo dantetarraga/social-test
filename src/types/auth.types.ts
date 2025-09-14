@@ -1,11 +1,3 @@
-import z from 'zod'
-import {
-  loginSchema,
-  recoveryEmailSchema,
-  registerSchema,
-  resetPasswordSchema,
-} from '@/schema'
-
 export enum SocialType {
   TIKTOK = 'tiktok',
   FACEBOOK = 'facebook',
@@ -13,12 +5,20 @@ export enum SocialType {
   YOUTUBE = 'youtube',
 }
 
-export interface AuthResponse {
+// Interfaces para el dominio de negocio
+export interface TokenPayload {
+  id: number
   email: string
   fullName?: string
-  accessToken: string
+  role?: string
 }
 
+export interface EmailResult {
+  success: boolean
+  message?: string
+}
+
+// Interfaces para integraciones con APIs externas
 export interface TikTokAuthResponse {
   access_token: string
   expires_in: number
@@ -35,6 +35,27 @@ export interface PageFacebookResponse {
   access_token: string
 }
 
+export interface FacebookAuthResponse {
+  access_token: string
+  expires_in: number
+  token_type: 'Bearer'
+  scope: string
+  pages: PageFacebookResponse[]
+}
+
+export interface InstagramAuthResponse {
+  access_token: string
+  expires_in: number
+}
+
+export interface YouTubeAuthResponse {
+  access_token: string
+  expires_in: number
+  token_type: 'Bearer'
+  refresh_token: string
+  scope: string
+}
+
 export interface SocialConnectionDTO {
   socialType: SocialType
   socialAccountId?: string
@@ -49,19 +70,6 @@ export interface SocialConnectionDTO {
     pageName: string
     pageToken: string
   }[]
-}
-
-export interface FacebookAuthResponse {
-  access_token: string
-  expires_in: number
-  token_type: 'Bearer'
-  scope: string
-  pages: PageFacebookResponse[]
-}
-
-export interface InstagramAuthResponse {
-  access_token: string
-  expires_in: number
 }
 
 export interface ProviderConfig {
@@ -82,17 +90,3 @@ export interface CallbackConfig {
   redirectUri: string
   grantType?: string
 }
-
-export interface YouTubeAuthResponse {
-  access_token: string
-  expires_in: number
-  token_type: 'Bearer'
-  refresh_token: string
-  scope: string
-}
-
-export type RegisterDTO = z.infer<typeof registerSchema>
-export type LoginDTO = z.infer<typeof loginSchema>
-
-export type RecoveryEmailDTO = z.infer<typeof recoveryEmailSchema>
-export type ResetPasswordDTO = z.infer<typeof resetPasswordSchema>

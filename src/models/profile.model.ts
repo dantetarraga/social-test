@@ -1,10 +1,12 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm'
 
 import { User } from './user.model'
@@ -33,6 +35,14 @@ export class Profile {
   })
   connections!: SocialConnection[]
 
-  @ManyToMany(() => Post, (post) => post.profiles)
+  @OneToMany(() => Post, (post) => post.profile, {
+    cascade: true,
+  })
   posts!: Post[]
+
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt!: Date
+
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt!: Date
 }
