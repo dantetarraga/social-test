@@ -1,14 +1,17 @@
 import { Request, Response } from 'express'
-import { ProfileService } from '@/service'
-import SocialConnectionService from '@/service/social-connection.service'
+import { ProfileService } from '@/services'
+import {
+  createProfileSchema,
+  updateProfileSchema,
+  profileIdSchema,
+} from '@/schemas/profile.schemas'
 
 const profileService = new ProfileService()
-const socialConnectionService = new SocialConnectionService()
 
 class ProfileController {
   static async createProfile(req: Request, res: Response): Promise<Response> {
     const user = req.user
-    const profileData = req.body
+    const profileData = createProfileSchema.parse(req.body)
 
     const response = await profileService.createProfile(user!.id, profileData)
 
@@ -33,23 +36,24 @@ class ProfileController {
 
   static async deleteProfile(req: Request, res: Response): Promise<Response> {
     const user = req.user
-    const profileId = parseInt(req.params.id)
+    const { id } = profileIdSchema.parse(req.params)
 
-    await profileService.deleteProfile(user!.id, profileId)
+    await profileService.deleteProfile(user!.id, id)
 
-    return res
-      .status(200)
-      .json({ success: true, message: 'Profile deleted successfully' })
+    return res.status(200).json({
+      success: true,
+      message: 'Profile deleted successfully',
+    })
   }
 
   static async editProfile(req: Request, res: Response): Promise<Response> {
     const user = req.user
-    const profileId = parseInt(req.params.id)
-    const profileData = req.body
+    const { id } = profileIdSchema.parse(req.params)
+    const profileData = updateProfileSchema.parse(req.body)
 
     const response = await profileService.editProfile(
       user!.id,
-      profileId,
+      id,
       profileData
     )
 
@@ -62,9 +66,9 @@ class ProfileController {
 
   static async getProfile(req: Request, res: Response): Promise<Response> {
     const user = req.user
-    const profileId = parseInt(req.params.id)
+    const { id } = profileIdSchema.parse(req.params)
 
-    const response = await profileService.getProfileById(user!.id, profileId)
+    const response = await profileService.getProfileById(user!.id, id)
 
     return res.status(200).json({
       success: true,
@@ -73,17 +77,11 @@ class ProfileController {
     })
   }
 
-  static async getProfileConnections(
-    req: Request,
-    res: Response
-  ): Promise<Response> {
+  static async getConnectionsByProfile(req: Request, res: Response): Promise<Response> {
     const user = req.user
-    const profileId = parseInt(req.params.id)
+    const { id } = profileIdSchema.parse(req.params)
 
-    const response = await profileService.getProfileConnections(
-      user!.id,
-      profileId
-    )
+    const response = await profileService.getConnectionsByProfile(user!.id, id)
 
     return res.status(200).json({
       success: true,
@@ -92,24 +90,12 @@ class ProfileController {
     })
   }
 
-  static async disconnect(req: Request, res: Response): Promise<Response> {
-    const { profileId, connectionId } = req.params
+  static async getPostsByProfile(req: Request, res: Response): Promise<Response> {
+    const user = req.user
+    const { id } = profileIdSchema.parse(req.params)
 
-    await profileService.disconnect(Number(profileId), Number(connectionId))
+    const response = await profileService.getPostsByProfile(user!.id, id)
 
-    return res.status(200).json({
-      success: true,
-      message: 'Connection removed successfully',
-    })
-  }
-
-  static async getPostsByProfile(
-    req: Request,
-    res: Response
-  ): Promise<Response> {
-    const profileId = parseInt(req.params.id)
-
-    const response = await profileService.getPostsByProfile(profileId)
     return res.status(200).json({
       success: true,
       message: 'Posts retrieved successfully',
