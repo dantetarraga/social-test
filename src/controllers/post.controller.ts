@@ -1,5 +1,4 @@
-import { CreatePostDTO } from '@/schema'
-import { PostService } from '@/service'
+import { PostService } from '@/services'
 import { Response, Request } from 'express'
 
 const postService = new PostService()
@@ -7,16 +6,11 @@ const postService = new PostService()
 class PostController {
   static async createPost(req: Request, res: Response): Promise<Response> {
     const userId = req.user!.id
-    let data = req.body
     const files = req.files as Express.Multer.File[]
+    
+    const postData = req.body 
 
-    console.log('req.body:', req.body)
-
-    data.socialIds = JSON.parse(data.socialIds).map((id: string | number) =>
-      Number(id)
-    )
-
-    const post = await postService.createPost(data as CreatePostDTO, files)
+    const post = await postService.createPost(userId, postData, files)
 
     return res.status(201).json({
       success: true,
@@ -25,9 +19,11 @@ class PostController {
     })
   }
 
-  static async getPostById(req: Request, res: Response): Promise<Response> {
-    const postId = req.params.postId
-    const post = await postService.getPostById(Number(postId))
+  static async getPostByProfile(req: Request, res: Response): Promise<Response> {
+    const userId = req.user!.id
+    const postId = Number(req.params.postId)
+
+    const post = await postService.getPostByProfile(userId, postId)
 
     return res.status(200).json({
       success: true,
@@ -37,21 +33,13 @@ class PostController {
   }
 
   static async updatePost(req: Request, res: Response): Promise<Response> {
-    const postId = req.params.postId
-    let updateData = req.body
+    const userId = req.user!.id
+    const postId = Number(req.params.postId)
     const files = req.files as Express.Multer.File[]
 
-    if (updateData.socialIds) {
-      updateData.socialIds = JSON.parse(updateData.socialIds).map(
-        (id: string | number) => Number(id)
-      )
-    }
+    const validatedData = req.body
 
-    const updatedPost = await postService.updatePost(
-      Number(postId),
-      updateData,
-      files
-    )
+    const updatedPost = await postService.updatePost(userId, postId, validatedData, files)
 
     return res.status(200).json({
       success: true,
@@ -61,11 +49,12 @@ class PostController {
   }
 
   static async deletePost(req: Request, res: Response): Promise<Response> {
-    const postId = req.params.postId
+    const userId = req.user!.id
+    const postId = Number(req.params.postId)
 
-    await postService.deletePost(Number(postId))
+    await postService.deletePost(userId, postId)
 
-    return res.status(204).json({
+    return res.status(200).json({
       success: true,
       message: 'Post deleted successfully',
     })
@@ -75,6 +64,7 @@ class PostController {
     const userId = req.user!.id
 
     const posts = await postService.getAllPosts(userId)
+    
     return res.status(200).json({
       success: true,
       data: posts,
