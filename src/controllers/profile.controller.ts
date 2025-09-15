@@ -33,9 +33,6 @@ class ProfileController {
     const user = req.user
     const { profileId } = req.params
 
-    console.log(profileId)
-    console.log(user!.id)
-
     await profileService.deleteProfile(user!.id, Number(profileId))
 
     return res.status(200).json({
@@ -71,8 +68,6 @@ class ProfileController {
     console.log(user!.id)
 
     const response = await profileService.getProfileById(user!.id, Number(profileId))
-
-    console.log(response)
 
     return res.status(200).json({
       success: true,
