@@ -57,3 +57,5 @@ export class YoutubeService extends SocialPlatformService  {
     console.log("[YouTube] Upload image:", imagePath)
   }
 }
+
+export default YoutubeService

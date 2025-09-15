@@ -4,7 +4,7 @@ import { SocialType } from "@/types"
 import Boom from "@hapi/boom"
 import { SocialPlatformService } from "@/abstracts/social-platform.service"
 
-export class InstagramService extends SocialPlatformService {
+class InstagramService extends SocialPlatformService {
   protected authUrl = "https://api.instagram.com/oauth/authorize"
   protected tokenUrl = "https://graph.instagram.com/oauth/access_token"
 
@@ -42,3 +42,5 @@ export class InstagramService extends SocialPlatformService {
     console.log("[Instagram] Upload image:", imagePath)
   }
 }
+
+export default InstagramService

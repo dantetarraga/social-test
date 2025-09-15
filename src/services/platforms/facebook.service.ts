@@ -2,7 +2,7 @@ import axios from "axios"
 import { SocialType } from "@/types"
 import { SocialPlatformService } from "@/abstracts/social-platform.service"
 
-export class FacebookService extends SocialPlatformService {
+class FacebookService extends SocialPlatformService {
   protected authUrl = "https://www.facebook.com/v23.0/dialog/oauth"
   protected tokenUrl = "https://graph.facebook.com/v23.0/oauth/access_token"
 
@@ -53,3 +53,5 @@ export class FacebookService extends SocialPlatformService {
     console.log("[Facebook] Upload image:", imagePath)
   }
 }
+
+export default FacebookService
