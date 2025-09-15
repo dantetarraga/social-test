@@ -5,6 +5,7 @@ import authRouter from "./auth.routes";
 import postRouter from "./post.routes";
 import profileRouter from "./profile.routes";
 
+import socialAuthRouter from "./social-auth.routes";
 
 function routerApi(app: express.Application) {
   const router = Router()
@@ -12,8 +13,11 @@ function routerApi(app: express.Application) {
   app.use('/api', router)
 
   router.use('/auth', authRouter)
+  router.use('/auth', socialAuthRouter)
+
   router.use('/profiles', profileRouter)
   router.use('/posts', postRouter)
+
 }
 
 export default routerApi
