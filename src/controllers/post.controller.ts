@@ -19,11 +19,11 @@ class PostController {
     })
   }
 
-  static async getPostByProfile(req: Request, res: Response): Promise<Response> {
+  static async getPostById(req: Request, res: Response): Promise<Response> {
     const userId = req.user!.id
     const postId = Number(req.params.postId)
 
-    const post = await postService.getPostByProfile(userId, postId)
+    const post = await postService.getPostById(userId, postId)
 
     return res.status(200).json({
       success: true,

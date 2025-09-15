@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import path from "path";
 import fs from "fs";
-import { MediaItem } from "@/schema";
+import { MediaItem } from "@/schemas";
 
 function generateFilename(userId: number, originalname: string): string {
   const randomId = crypto.randomBytes(4).toString("hex");
