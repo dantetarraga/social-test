@@ -170,7 +170,7 @@ class PostService {
           },
         },
       },
-      relations: ['profiles', 'socialConnections'],
+      relations: ['socialConnections'],
       order: { createdAt: 'DESC' }
     })
   }
