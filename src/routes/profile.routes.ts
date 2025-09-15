@@ -26,6 +26,20 @@ profileRouter.get(
   ProfileController.getProfile
 )
 
+profileRouter.get(
+  '/:profileId/connections',
+  authenticateToken,
+  validateSchema(connectionParamsSchema, 'params'),
+  ProfileController.getConnectionsByProfile
+)
+
+profileRouter.get(
+  '/:profileId/posts',
+  authenticateToken,
+  validateSchema(profileIdSchema, 'params'),
+  ProfileController.getPostsByProfile
+)
+
 profileRouter.delete(
   '/:profileId',
   authenticateToken,
@@ -39,20 +53,6 @@ profileRouter.put(
   validateSchema(profileIdSchema, 'params'),
   validateSchema(createProfileSchema, 'body'),
   ProfileController.editProfile
-)
-
-profileRouter.get(
-  '/:profileId/connections',
-  authenticateToken,
-  validateSchema(connectionParamsSchema, 'params'),
-  ProfileController.getConnectionsByProfile
-)
-
-profileRouter.get(
-  '/:profileId/posts',
-  authenticateToken,
-  validateSchema(profileIdSchema, 'params'),
-  ProfileController.getPostsByProfile
 )
 
 export default profileRouter
