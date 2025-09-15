@@ -21,7 +21,6 @@ class InstagramService extends SocialPlatformService {
         client_secret: this.clientSecret,
         redirect_uri: this.redirectUri,
         code,
-        grant_type: "authorization_code",
       },
     })
 
