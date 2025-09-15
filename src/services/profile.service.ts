@@ -100,9 +100,13 @@ class ProfileService {
     if (!profile) throw Boom.notFound('Profile not found')
 
     const posts = await this.postRepo.find({
-      where: { profile: { id: profileId } },
-      relations: ['socialConnections', 'profile'],
-      order: { createdAt: 'DESC' }
+      where: {
+        profiles: {
+          id: profileId, 
+        },
+      },
+      relations: ['socialConnections'], 
+      order: { createdAt: 'DESC' },
     })
 
     return posts

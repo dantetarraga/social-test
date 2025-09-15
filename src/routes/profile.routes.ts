@@ -1,8 +1,12 @@
 import { Router } from 'express'
 
-import { createProfileSchema } from '@/schemas'
 import { ProfileController } from '@/controllers'
 import { authenticateToken, validateSchema } from '@/middleware'
+import {
+  connectionParamsSchema,
+  createProfileSchema,
+  profileIdSchema,
+} from '@/schemas'
 
 const profileRouter = Router()
 
@@ -13,42 +17,42 @@ profileRouter.post(
   ProfileController.createProfile
 )
 
-profileRouter.get(
-  '',
-  authenticateToken,
-  ProfileController.listProfiles
-)
+profileRouter.get('', authenticateToken, ProfileController.listProfiles)
 
 profileRouter.get(
-  '/:id',
+  '/:profileId',
   authenticateToken,
+  validateSchema(profileIdSchema, 'params'),
   ProfileController.getProfile
 )
 
 profileRouter.delete(
-  '/:id',
+  '/:profileId',
   authenticateToken,
+  validateSchema(profileIdSchema, 'params'),
   ProfileController.deleteProfile
 )
 
 profileRouter.put(
-  '/:id',
+  '/:profileId',
   authenticateToken,
+  validateSchema(profileIdSchema, 'params'),
   validateSchema(createProfileSchema, 'body'),
   ProfileController.editProfile
 )
 
 profileRouter.get(
-  '/:id/connections',
+  '/:profileId/connections',
   authenticateToken,
+  validateSchema(connectionParamsSchema, 'params'),
   ProfileController.getConnectionsByProfile
 )
 
 profileRouter.get(
-  '/:id/posts',
+  '/:profileId/posts',
   authenticateToken,
+  validateSchema(profileIdSchema, 'params'),
   ProfileController.getPostsByProfile
-  
 )
 
 export default profileRouter

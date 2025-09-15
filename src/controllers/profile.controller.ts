@@ -11,7 +11,7 @@ const profileService = new ProfileService()
 class ProfileController {
   static async createProfile(req: Request, res: Response): Promise<Response> {
     const user = req.user
-    const profileData = createProfileSchema.parse(req.body)
+    const profileData = req.body
 
     const response = await profileService.createProfile(user!.id, profileData)
 
@@ -36,9 +36,9 @@ class ProfileController {
 
   static async deleteProfile(req: Request, res: Response): Promise<Response> {
     const user = req.user
-    const { id } = profileIdSchema.parse(req.params)
+    const { profileId } = req.params
 
-    await profileService.deleteProfile(user!.id, id)
+    await profileService.deleteProfile(user!.id, Number(profileId))
 
     return res.status(200).json({
       success: true,
@@ -48,12 +48,13 @@ class ProfileController {
 
   static async editProfile(req: Request, res: Response): Promise<Response> {
     const user = req.user
-    const { id } = profileIdSchema.parse(req.params)
-    const profileData = updateProfileSchema.parse(req.body)
+
+    const { profileId } = req.params
+    const profileData = req.body
 
     const response = await profileService.editProfile(
       user!.id,
-      id,
+      Number(profileId),
       profileData
     )
 
@@ -66,9 +67,9 @@ class ProfileController {
 
   static async getProfile(req: Request, res: Response): Promise<Response> {
     const user = req.user
-    const { id } = profileIdSchema.parse(req.params)
+    const { profileId } = req.params
 
-    const response = await profileService.getProfileById(user!.id, id)
+    const response = await profileService.getProfileById(user!.id, Number(profileId))
 
     return res.status(200).json({
       success: true,
@@ -79,9 +80,9 @@ class ProfileController {
 
   static async getConnectionsByProfile(req: Request, res: Response): Promise<Response> {
     const user = req.user
-    const { id } = profileIdSchema.parse(req.params)
+    const { profileId } = req.params
 
-    const response = await profileService.getConnectionsByProfile(user!.id, id)
+    const response = await profileService.getConnectionsByProfile(user!.id, Number(profileId))
 
     return res.status(200).json({
       success: true,
@@ -92,9 +93,9 @@ class ProfileController {
 
   static async getPostsByProfile(req: Request, res: Response): Promise<Response> {
     const user = req.user
-    const { id } = profileIdSchema.parse(req.params)
+    const { profileId } = req.params
 
-    const response = await profileService.getPostsByProfile(user!.id, id)
+    const response = await profileService.getPostsByProfile(user!.id, Number(profileId))
 
     return res.status(200).json({
       success: true,
