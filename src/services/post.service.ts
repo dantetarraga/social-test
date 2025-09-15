@@ -15,27 +15,35 @@ class PostService {
     this.connectionRepo = AppDataSource.getRepository(SocialConnection)
   }
 
-  async createPost(userId: number, data: CreatePostSchema, files?: Express.Multer.File[]): Promise<Omit<Post, 'profile'>> {
-    const { content, scheduledDate, scheduledTime, profileId, socialIds } = data
+  async createPost(userId: number, data: CreatePostSchema, files?: Express.Multer.File[]): Promise<Post> {
+    const { content, scheduledDate, scheduledTime, profileIds, socialIds } = data
 
-    const profile = await this.profileRepo.findOne({
-      where: { id: profileId, user: { id: userId } },
+    // Verificar que todos los perfiles pertenecen al usuario
+    const profiles = await this.profileRepo.find({
+      where: { 
+        id: In(profileIds), 
+        user: { id: userId } 
+      },
       relations: ['user'],
     })
     
-    if (!profile) throw Boom.notFound('Profile not found')
-    
+    if (profiles.length !== profileIds.length) {
+      throw Boom.badRequest('Some profiles not found or do not belong to the user')
+    }
+
+    // Verificar que las conexiones sociales existen y pertenecen a alguno de los perfiles
     const socialConnections = await this.connectionRepo.find({
       where: { 
         id: In(socialIds),
-        profile: { id: profileId }
+        profile: { id: In(profileIds) }
       },
     })
 
     if (socialConnections.length !== socialIds.length) {
-      throw Boom.badRequest('Some social connections not found')
+      throw Boom.badRequest('Some social connections not found or do not belong to the selected profiles')
     }
 
+    // Procesar archivos multimedia
     const media: PostMedia[] = files ? files.map((file) => ({
       url: `/uploads/posts/${file.filename}`,
       type: file.mimetype.startsWith('image') ? 'image' : 'video',
@@ -44,49 +52,43 @@ class PostService {
 
     const newPost = this.postRepo.create({
       content,
-      scheduledDate, 
+      scheduledDate,
       scheduledTime,
-      media: media.length > 0 ? media : [],
-      profile,
+      media: media.length > 0 ? media : undefined,
+      profiles, 
       socialConnections,
     })
 
-    const savedPost = await this.postRepo.save(newPost)
-
-    const { profile: _, ...postData } = await this.postRepo.save(newPost)
-
-    return postData
+    return await this.postRepo.save(newPost)
   }
 
-  async getPostByProfile(userId: number, postId: number): Promise<Omit<Post, 'profile'>> {
+  async getPostById(userId: number, postId: number): Promise<Post> {
     const post = await this.postRepo.findOne({
       where: { 
         id: postId,
-        profile: { user: { id: userId } }
+        profiles: { user: { id: userId } } 
       },
-      relations: ['profile', 'socialConnections'],
+      relations: ['profiles', 'socialConnections'],
     })
     
     if (!post) throw Boom.notFound('Post not found')
-    
+
     return post
   }
 
   async updatePost(userId: number, postId: number, updateData: UpdatePostSchema, files?: Express.Multer.File[]): Promise<Post> {
-    // Buscar el post y verificar ownership
     const post = await this.postRepo.findOne({
       where: { 
         id: postId,
-        profile: { user: { id: userId } }
+        profiles: { user: { id: userId } }
       },
-      relations: ['profile', 'socialConnections'], 
+      relations: ['profiles', 'socialConnections'], 
     })
 
     if (!post) {
       throw Boom.notFound('Post not found')
     }
 
-    // Actualizar campos básicos
     if (updateData.content !== undefined) {
       post.content = updateData.content
     }
@@ -99,23 +101,38 @@ class PostService {
       post.scheduledTime = updateData.scheduledTime
     }
 
-    // Actualizar conexiones sociales si se proporcionan
+    if (updateData.profileIds && updateData.profileIds.length > 0) {
+      const profiles = await this.profileRepo.find({
+        where: { 
+          id: In(updateData.profileIds),
+          user: { id: userId }
+        },
+      })
+
+      if (profiles.length !== updateData.profileIds.length) {
+        throw Boom.badRequest('Some profiles not found or do not belong to the user')
+      }
+
+      post.profiles = profiles
+    }
+
     if (updateData.socialIds && updateData.socialIds.length > 0) {
+      const currentProfileIds = post.profiles.map(p => p.id)
+      
       const socialConnections = await this.connectionRepo.find({
         where: { 
           id: In(updateData.socialIds),
-          profile: { id: post.profile.id }
+          profile: { id: In(currentProfileIds) }
         },
       })
 
       if (socialConnections.length !== updateData.socialIds.length) {
-        throw Boom.badRequest('Some social connections not found')
+        throw Boom.badRequest('Some social connections not found or do not belong to the selected profiles')
       }
 
       post.socialConnections = socialConnections
     }
 
-    // Actualizar media si se proporcionan nuevos archivos
     if (files && files.length > 0) {
       const newMedia: PostMedia[] = files.map((file) => ({
         url: `/uploads/posts/${file.filename}`,
@@ -133,7 +150,7 @@ class PostService {
     const post = await this.postRepo.findOne({ 
       where: { 
         id: postId,
-        profile: { user: { id: userId } }
+        profiles: { user: { id: userId } }
       }
     })
     
@@ -147,13 +164,13 @@ class PostService {
   async getAllPosts(userId: number): Promise<Post[]> {
     return await this.postRepo.find({
       where: {
-        profile: {
+        profiles: {
           user: {
             id: userId,
           },
         },
       },
-      relations: ['profile', 'socialConnections'],
+      relations: ['profiles', 'socialConnections'],
       order: { createdAt: 'DESC' }
     })
   }

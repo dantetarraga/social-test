@@ -37,10 +37,9 @@ export class Post {
   @JoinTable()
   socialConnections!: SocialConnection[]
 
-  @ManyToOne(() => Profile, (profile) => profile.posts, {
-    onDelete: 'CASCADE', 
-  })
-  profile!: Profile
+  @ManyToMany(() => Profile, (profile) => profile.posts, { cascade: true })
+  @JoinTable()
+  profiles!: Profile[]
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date

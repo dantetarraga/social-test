@@ -35,9 +35,7 @@ export class Profile {
   })
   connections!: SocialConnection[]
 
-  @OneToMany(() => Post, (post) => post.profile, {
-    cascade: true,
-  })
+  @ManyToMany(() => Post, (post) => post.profiles)
   posts!: Post[]
 
   @CreateDateColumn({ type: 'timestamp' })

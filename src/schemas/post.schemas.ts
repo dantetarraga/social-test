@@ -30,10 +30,10 @@ const validateTime = (value: unknown) => {
 export const createPostSchema = z.object({
   content: z.string().min(1, 'Content is required').max(500),
 
-  profileId: z.preprocess((val) => {
-    if (typeof val === 'string') return Number(val)
+  profileIds: z.preprocess((val) => {
+    if (typeof val === 'string') return JSON.parse(val).map((id: string | number) => Number(id))
     return val
-  }, z.number().min(1, 'Profile ID is required')),
+  }, z.array(z.number().min(1, 'Profile ID is required'))),
 
   socialIds: z.preprocess((val) => {
     if (typeof val === 'string')
