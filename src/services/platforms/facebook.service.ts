@@ -6,8 +6,8 @@ class FacebookService extends SocialPlatformService {
   protected authUrl = "https://www.facebook.com/v23.0/dialog/oauth"
   protected tokenUrl = "https://graph.facebook.com/v23.0/oauth/access_token"
 
-  protected clientId = process.env.FACEBOOK_CLIENT_ID!
-  protected clientSecret = process.env.FACEBOOK_CLIENT_SECRET!
+  protected clientId = process.env.FACEBOOK_APP_ID!
+  protected clientSecret = process.env.FACEBOOK_APP_SECRET!
   protected redirectUri = process.env.FACEBOOK_REDIRECT_URI!
   protected responseType = "code"
   protected scope = 'email,publish_video,pages_show_list,pages_read_engagement,pages_read_user_content,pages_manage_posts,pages_manage_engagement'
