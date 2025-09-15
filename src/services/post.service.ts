@@ -7,6 +7,7 @@ import {
 import { In, Repository } from 'typeorm'
 import { Post, Profile, SocialConnection } from '@/models'
 import Boom from '@hapi/boom'
+import { PaginatedPostsResponse, PostQueryParams } from '@/types/post.types'
 
 class PostService {
   private postRepo: Repository<Post>
@@ -26,8 +27,14 @@ class PostService {
   ): Promise<Post> {
     const { content, scheduledAt, publishNow, platforms } = data
 
-    const profileIds = [...new Set(platforms.map((p: { profileId: number }) => p.profileId))]
-    const connectionIds = [...new Set(platforms.map((p: { connectionId: number }) => p.connectionId))]
+    const profileIds = [
+      ...new Set(platforms.map((p: { profileId: number }) => p.profileId)),
+    ]
+    const connectionIds = [
+      ...new Set(
+        platforms.map((p: { connectionId: number }) => p.connectionId)
+      ),
+    ]
 
     const profiles = await this.profileRepo.find({
       where: {
@@ -104,13 +111,18 @@ class PostService {
     return post
   }
 
-  async updatePost(userId: number, postId: number, updateData: UpdatePostSchema, files?: Express.Multer.File[]): Promise<Post> {
+  async updatePost(
+    userId: number,
+    postId: number,
+    updateData: UpdatePostSchema,
+    files?: Express.Multer.File[]
+  ): Promise<Post> {
     const post = await this.postRepo.findOne({
-      where: { 
+      where: {
         id: postId,
-        profiles: { user: { id: userId } }
+        profiles: { user: { id: userId } },
       },
-      relations: ['profiles', 'socialConnections'], 
+      relations: ['profiles', 'socialConnections'],
     })
 
     if (!post) {
@@ -120,7 +132,7 @@ class PostService {
     if (updateData.content !== undefined) {
       post.content = updateData.content
     }
-    
+
     if (updateData.scheduledAt !== undefined) {
       post.scheduledAt = updateData.scheduledAt
     }
@@ -130,23 +142,29 @@ class PostService {
     }
 
     if (updateData.platforms && updateData.platforms.length > 0) {
-      const profileIds = [...new Set(updateData.platforms.map(p => p.profileId))]
-      const connectionIds = [...new Set(updateData.platforms.map(p => p.connectionId))]
+      const profileIds = [
+        ...new Set(updateData.platforms.map((p) => p.profileId)),
+      ]
+      const connectionIds = [
+        ...new Set(updateData.platforms.map((p) => p.connectionId)),
+      ]
 
       const profiles = await this.profileRepo.find({
-        where: { 
+        where: {
           id: In(profileIds),
-          user: { id: userId }
+          user: { id: userId },
         },
       })
 
       if (profiles.length !== profileIds.length) {
-        throw Boom.badRequest('Some profiles not found or do not belong to the user')
+        throw Boom.badRequest(
+          'Some profiles not found or do not belong to the user'
+        )
       }
 
       const socialConnections = await this.connectionRepo.find({
-        where: { 
-          id: In(connectionIds)
+        where: {
+          id: In(connectionIds),
         },
         relations: ['profile'],
       })
@@ -156,8 +174,10 @@ class PostService {
       }
 
       for (const platform of updateData.platforms) {
-        const connection = socialConnections.find(c => c.id === platform.connectionId)
-        
+        const connection = socialConnections.find(
+          (c) => c.id === platform.connectionId
+        )
+
         if (connection && connection.profile.id !== platform.profileId) {
           throw Boom.badRequest(
             `Connection ${platform.connectionId} does not belong to profile ${platform.profileId}`
@@ -197,18 +217,62 @@ class PostService {
     await this.postRepo.remove(post)
   }
 
-  async getAllPosts(userId: number): Promise<Post[]> {
-    return await this.postRepo.find({
-      where: {
-        profiles: {
-          user: {
-            id: userId,
-          },
+  async getAllPosts(
+    userId: number,
+    params: PostQueryParams = {}
+  ): Promise<PaginatedPostsResponse> {
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      sortBy = 'createdAt',
+      sortOrder = 'DESC',
+    } = params
+
+    const validatedPage = Math.max(1, page)
+    const validatedLimit = Math.min(Math.max(1, limit), 100)
+    const offset = (validatedPage - 1) * validatedLimit
+
+    const whereConditions: any = {
+      profiles: {
+        user: {
+          id: userId,
         },
       },
-      relations: ['socialConnections'],
-      order: { createdAt: 'DESC' },
+    }
+
+    if (status) {
+      whereConditions.status = status
+    }
+
+    const orderField = sortBy === 'scheduledAt' ? 'scheduledAt' : 'createdAt'
+    const orderDirection = sortOrder.toUpperCase() === 'ASC' ? 'ASC' : 'DESC'
+
+    const [posts, total] = await this.postRepo.findAndCount({
+      where: whereConditions,
+      relations: ['profiles', 'socialConnections', 'socialConnections.profile'],
+      order: {
+        [orderField]: orderDirection,
+      },
+      take: validatedLimit,
+      skip: offset,
     })
+
+    const totalPages = Math.ceil(total / validatedLimit)
+    const hasNext = validatedPage < totalPages
+    const hasPrev = validatedPage > 1
+
+    return {
+      data: posts,
+      pagination: {
+        page: validatedPage,
+        limit: validatedLimit,
+        total,
+        totalPages,
+        hasNext,
+        hasPrev,
+      },
+    }
   }
 }
 

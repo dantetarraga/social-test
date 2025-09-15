@@ -1,5 +1,4 @@
 import { PostController } from '@/controllers'
-// import SocialMediaPublisherController from '@/controllers/social-publisher.controller'
 import { authenticateToken, uploadArray, validateSchema } from '@/middleware'
 import { createPostSchema, updatePostSchema } from '@/schemas'
 import { Router } from 'express'
@@ -22,10 +21,15 @@ router.put(
   PostController.updatePost
 )
 
-router.delete('/:postId', authenticateToken, PostController.deletePost)
-
 router.get('/:postId', authenticateToken, PostController.getPostById)
-router.get('', authenticateToken, PostController.getAllPosts)
+
+router.get(
+  '',
+  authenticateToken,
+  PostController.getAllPosts
+)
+
+router.delete('/:postId', authenticateToken, PostController.deletePost)
 
 // router.post(
 //   '/publish',

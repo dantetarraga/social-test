@@ -191,6 +191,7 @@
  */      
 
 
+
 /**
  * @swagger
  * /api/posts:
@@ -220,14 +221,22 @@
  *           enum: [SCHEDULED, PUBLISHED, FAILED, DRAFT]
  *         description: Filtrar por estado
  *       - in: query
- *         name: profileId
+ *         name: sortBy
  *         schema:
- *           type: integer
- *           minimum: 1
- *         description: Filtrar por perfil
+ *           type: string
+ *           enum: [createdAt, scheduledAt]
+ *           default: createdAt
+ *         description: Campo por el cual ordenar
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [ASC, DESC]
+ *           default: DESC
+ *         description: Orden ascendente o descendente
  *     responses:
  *       200:
- *         description: Lista de publicaciones
+ *         description: Lista de publicaciones obtenida exitosamente
  *         content:
  *           application/json:
  *             schema:
@@ -268,10 +277,9 @@
  *                           type: boolean
  *                           example: false
  *       400:
- *         description: Parámetros inválidos
+ *         description: Parámetros de consulta inválidos
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-

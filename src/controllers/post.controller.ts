@@ -1,4 +1,5 @@
 import { PostService } from '@/services'
+import { PostQueryParams } from '@/types/post.types'
 import { Response, Request } from 'express'
 
 const postService = new PostService()
@@ -7,8 +8,8 @@ class PostController {
   static async createPost(req: Request, res: Response): Promise<Response> {
     const userId = req.user!.id
     const files = req.files as Express.Multer.File[]
-    
-    const postData = req.body 
+
+    const postData = req.body
 
     const post = await postService.createPost(userId, postData, files)
 
@@ -39,7 +40,12 @@ class PostController {
 
     const validatedData = req.body
 
-    const updatedPost = await postService.updatePost(userId, postId, validatedData, files)
+    const updatedPost = await postService.updatePost(
+      userId,
+      postId,
+      validatedData,
+      files
+    )
 
     return res.status(200).json({
       success: true,
@@ -63,11 +69,27 @@ class PostController {
   static async getAllPosts(req: Request, res: Response): Promise<Response> {
     const userId = req.user!.id
 
-    const posts = await postService.getAllPosts(userId)
-    
+    const queryParams: PostQueryParams = {
+      page: req.query.page ? Number(req.query.page) : undefined,
+      limit: req.query.limit ? Number(req.query.limit) : undefined,
+      status: req.query.status as
+        | 'SCHEDULED'
+        | 'PUBLISHED'
+        | 'FAILED'
+        | undefined,
+      sortBy: req.query.sortBy as 'createdAt' | 'scheduledAt' | undefined,
+      sortOrder: req.query.sortOrder as 'ASC' | 'DESC' | undefined,
+    }
+
+    const { data, pagination } = await postService.getAllPosts(
+      userId,
+      queryParams
+    )
+
     return res.status(200).json({
       success: true,
-      data: posts,
+      data,
+      pagination,
       message: 'Posts retrieved successfully',
     })
   }
