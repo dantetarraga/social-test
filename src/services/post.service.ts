@@ -22,7 +22,7 @@ class PostService {
   async createPost(
     userId: number,
     data: CreatePostSchema,
-    files?: Express.Multer.File[]
+    files: Express.Multer.File[]
   ): Promise<Post> {
     const { content, scheduledAt, publishNow, platforms } = data
 
@@ -70,19 +70,19 @@ class PostService {
       }
     }
 
-    const media: PostMedia[] = files
-      ? files.map((file) => ({
-          url: `/uploads/posts/${file.filename}`,
-          type: file.mimetype.startsWith('image') ? 'image' : 'video',
-          filename: file.filename,
-        }))
-      : []
+    const media: PostMedia[] = files.map((file) => ({
+      url: `/uploads/posts/${file.filename}`,
+      type: file.mimetype.startsWith('image') ? 'image' : 'video',
+      filename: file.filename,
+    }))
+
+    console.log(media)
 
     const newPost = this.postRepo.create({
       content,
       scheduledAt,
       publishNow,
-      media: media.length > 0 ? media : undefined,
+      media: media.length > 0 ? media : [],
       profiles,
       socialConnections,
     })
