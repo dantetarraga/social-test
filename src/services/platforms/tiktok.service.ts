@@ -7,11 +7,11 @@ class TikTokService extends SocialPlatformService {
   protected authUrl = "https://www.tiktok.com/v2/auth/authorize/"
   protected tokenUrl = "https://open.tiktokapis.com/v2/oauth/token/"
   
-  protected clientId = process.env.TIKTOK_CLIENT_ID!
+  protected clientId = process.env.TIKTOK_CLIENT_KEY!
   protected clientSecret = process.env.TIKTOK_CLIENT_SECRET!
   protected redirectUri = process.env.TIKTOK_REDIRECT_URI!
   protected responseType = "code"
-  protected scope = "user.info.basic,video.upload"
+  protected scope = "user.info.basic,user.info.profile,video.list,video.upload"
 
   protected buildAuthParams(state: string): URLSearchParams {
     return new URLSearchParams({
@@ -40,6 +40,8 @@ class TikTokService extends SocialPlatformService {
     })
 
     if (!data) throw Boom.badRequest("Error obtaining TikTok token")
+      
+    console.log("[TikTok] Token data:", data)
 
     return {
       socialType: SocialType.TIKTOK,
