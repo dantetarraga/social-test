@@ -41,8 +41,6 @@ class TikTokService extends SocialPlatformService {
 
     if (!data) throw Boom.badRequest("Error obtaining TikTok token")
       
-    console.log("[TikTok] Token data:", data)
-
     return {
       socialType: SocialType.TIKTOK,
       socialAccountId: data.open_id,
