@@ -91,6 +91,21 @@ class ProfileController {
     })
   }
 
+  static async deleteConnection(req: Request, res: Response): Promise<Response> {
+    const user = req.user
+    const { profileId, connectionId } = req.params
+
+    await profileService.deleteConnection(
+      user!.id,
+      Number(profileId),
+      Number(connectionId)
+    )
+    return res.status(200).json({
+      success: true,
+      message: 'Connection deleted successfully',
+    })
+  }
+
   static async getPostsByProfile(req: Request, res: Response): Promise<Response> {
     const user = req.user
     const { profileId } = req.params

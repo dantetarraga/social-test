@@ -92,6 +92,21 @@ class ProfileService {
     return connections
   }
 
+  async deleteConnection(userId: number, profileId: number, connectionId: number): Promise<void> {
+    const profile = await this.profileRepo.findOne({
+      where: { id: profileId, user: { id: userId } }
+    })
+
+    if (!profile) throw Boom.notFound('Profile not found')
+
+    const connection = await this.socialConnectionRepo.findOne({
+      where: { id: connectionId, profile: { id: profileId } }
+    })
+
+    if (!connection) throw Boom.notFound('Connection not found')
+    await this.socialConnectionRepo.remove(connection)
+  }
+
   async getPostsByProfile(userId: number, profileId: number): Promise<Post[]> {
     const profile = await this.profileRepo.findOne({
       where: { id: profileId, user: { id: userId } }
