@@ -1,5 +1,9 @@
 import { AppDataSource } from '@/config/database'
-import { CreatePostSchema, UpdatePostSchema, PostMedia } from '@/schemas/post.schemas'
+import {
+  CreatePostSchema,
+  UpdatePostSchema,
+  PostMedia,
+} from '@/schemas/post.schemas'
 import { In, Repository } from 'typeorm'
 import { Post, Profile, SocialConnection } from '@/models'
 import Boom from '@hapi/boom'
@@ -15,47 +19,71 @@ class PostService {
     this.connectionRepo = AppDataSource.getRepository(SocialConnection)
   }
 
-  async createPost(userId: number, data: CreatePostSchema, files?: Express.Multer.File[]): Promise<Post> {
-    const { content, scheduledDate, scheduledTime, profileIds, socialIds } = data
+  async createPost(
+    userId: number,
+    data: CreatePostSchema,
+    files?: Express.Multer.File[]
+  ): Promise<Post> {
+    const { content, scheduledAt, publishNow, platforms } = data
 
-    // Verificar que todos los perfiles pertenecen al usuario
+    const profileIds = [...new Set(platforms.map((p: { profileId: number }) => p.profileId))]
+    const connectionIds = [...new Set(platforms.map((p: { connectionId: number }) => p.connectionId))]
+
     const profiles = await this.profileRepo.find({
-      where: { 
-        id: In(profileIds), 
-        user: { id: userId } 
+      where: {
+        id: In(profileIds),
+        user: { id: userId },
       },
       relations: ['user'],
     })
-    
+
     if (profiles.length !== profileIds.length) {
-      throw Boom.badRequest('Some profiles not found or do not belong to the user')
+      throw Boom.badRequest(
+        'Some profiles not found or do not belong to the user'
+      )
     }
 
-    // Verificar que las conexiones sociales existen y pertenecen a alguno de los perfiles
     const socialConnections = await this.connectionRepo.find({
-      where: { 
-        id: In(socialIds),
-        profile: { id: In(profileIds) }
+      where: {
+        id: In(connectionIds),
       },
+      relations: ['profile'],
     })
 
-    if (socialConnections.length !== socialIds.length) {
-      throw Boom.badRequest('Some social connections not found or do not belong to the selected profiles')
+    if (socialConnections.length !== connectionIds.length) {
+      throw Boom.badRequest('Some social connections not found')
     }
 
-    // Procesar archivos multimedia
-    const media: PostMedia[] = files ? files.map((file) => ({
-      url: `/uploads/posts/${file.filename}`,
-      type: file.mimetype.startsWith('image') ? 'image' : 'video',
-      filename: file.filename,
-    })) : []
+    for (const platform of platforms) {
+      const connection = socialConnections.find(
+        (c) => c.id === platform.connectionId
+      )
+
+      if (!connection) {
+        throw Boom.badRequest(`Connection ${platform.connectionId} not found`)
+      }
+
+      if (connection.profile.id !== platform.profileId) {
+        throw Boom.badRequest(
+          `Connection ${platform.connectionId} does not belong to profile ${platform.profileId}`
+        )
+      }
+    }
+
+    const media: PostMedia[] = files
+      ? files.map((file) => ({
+          url: `/uploads/posts/${file.filename}`,
+          type: file.mimetype.startsWith('image') ? 'image' : 'video',
+          filename: file.filename,
+        }))
+      : []
 
     const newPost = this.postRepo.create({
       content,
-      scheduledDate,
-      scheduledTime,
+      scheduledAt,
+      publishNow,
       media: media.length > 0 ? media : undefined,
-      profiles, 
+      profiles,
       socialConnections,
     })
 
@@ -64,13 +92,13 @@ class PostService {
 
   async getPostById(userId: number, postId: number): Promise<Post> {
     const post = await this.postRepo.findOne({
-      where: { 
+      where: {
         id: postId,
-        profiles: { user: { id: userId } } 
+        profiles: { user: { id: userId } },
       },
       relations: ['profiles', 'socialConnections'],
     })
-    
+
     if (!post) throw Boom.notFound('Post not found')
 
     return post
@@ -93,43 +121,51 @@ class PostService {
       post.content = updateData.content
     }
     
-    if (updateData.scheduledDate !== undefined) {
-      post.scheduledDate = updateData.scheduledDate
+    if (updateData.scheduledAt !== undefined) {
+      post.scheduledAt = updateData.scheduledAt
     }
 
-    if (updateData.scheduledTime !== undefined) {
-      post.scheduledTime = updateData.scheduledTime
+    if (updateData.publishNow !== undefined) {
+      post.publishNow = updateData.publishNow
     }
 
-    if (updateData.profileIds && updateData.profileIds.length > 0) {
+    if (updateData.platforms && updateData.platforms.length > 0) {
+      const profileIds = [...new Set(updateData.platforms.map(p => p.profileId))]
+      const connectionIds = [...new Set(updateData.platforms.map(p => p.connectionId))]
+
       const profiles = await this.profileRepo.find({
         where: { 
-          id: In(updateData.profileIds),
+          id: In(profileIds),
           user: { id: userId }
         },
       })
 
-      if (profiles.length !== updateData.profileIds.length) {
+      if (profiles.length !== profileIds.length) {
         throw Boom.badRequest('Some profiles not found or do not belong to the user')
       }
 
-      post.profiles = profiles
-    }
-
-    if (updateData.socialIds && updateData.socialIds.length > 0) {
-      const currentProfileIds = post.profiles.map(p => p.id)
-      
       const socialConnections = await this.connectionRepo.find({
         where: { 
-          id: In(updateData.socialIds),
-          profile: { id: In(currentProfileIds) }
+          id: In(connectionIds)
         },
+        relations: ['profile'],
       })
 
-      if (socialConnections.length !== updateData.socialIds.length) {
-        throw Boom.badRequest('Some social connections not found or do not belong to the selected profiles')
+      if (socialConnections.length !== connectionIds.length) {
+        throw Boom.badRequest('Some social connections not found')
       }
 
+      for (const platform of updateData.platforms) {
+        const connection = socialConnections.find(c => c.id === platform.connectionId)
+        
+        if (connection && connection.profile.id !== platform.profileId) {
+          throw Boom.badRequest(
+            `Connection ${platform.connectionId} does not belong to profile ${platform.profileId}`
+          )
+        }
+      }
+
+      post.profiles = profiles
       post.socialConnections = socialConnections
     }
 
@@ -147,13 +183,13 @@ class PostService {
   }
 
   async deletePost(userId: number, postId: number): Promise<void> {
-    const post = await this.postRepo.findOne({ 
-      where: { 
+    const post = await this.postRepo.findOne({
+      where: {
         id: postId,
-        profiles: { user: { id: userId } }
-      }
+        profiles: { user: { id: userId } },
+      },
     })
-    
+
     if (!post) {
       throw Boom.notFound('Post not found')
     }
@@ -171,7 +207,7 @@ class PostService {
         },
       },
       relations: ['socialConnections'],
-      order: { createdAt: 'DESC' }
+      order: { createdAt: 'DESC' },
     })
   }
 }

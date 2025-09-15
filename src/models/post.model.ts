@@ -4,7 +4,6 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
-  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
@@ -24,12 +23,6 @@ export class Post {
   @Column({ type: 'simple-json', nullable: true })
   media?: PostMedia[]
 
-  @Column({ type: 'date', nullable: true, default: () => 'CURRENT_DATE' })
-  scheduledDate!: Date 
-
-  @Column({ type: 'time', nullable: true, default: () => 'CURRENT_TIME' })
-  scheduledTime!: string
-
   @Column({ type: 'varchar', default: PostStatus.SCHEDULED })
   status!: PostStatus
 
@@ -40,6 +33,12 @@ export class Post {
   @ManyToMany(() => Profile, (profile) => profile.posts, { cascade: true })
   @JoinTable()
   profiles!: Profile[]
+
+  @Column({ type: 'boolean', default: false })
+  publishNow!: boolean
+
+  @Column({ type: 'timestamp', nullable: true })
+  scheduledAt?: Date
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date

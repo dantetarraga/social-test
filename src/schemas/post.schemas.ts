@@ -1,6 +1,5 @@
 import z from 'zod'
-import { formatInTimeZone } from 'date-fns-tz'
-import { isValid, parse } from 'date-fns'
+import { parseISO, isValid } from 'date-fns'
 
 export const postMediaSchema = z.object({
   url: z.string(),
@@ -8,52 +7,34 @@ export const postMediaSchema = z.object({
   filename: z.string(),
 })
 
-const getPeruDate = () => {
-  return formatInTimeZone(new Date(), 'America/Lima', 'yyyy-MM-dd')
-}
-
-const getPeruTime = () => {
-  return formatInTimeZone(new Date(), 'America/Lima', 'HH:mm:ss')
-}
-
-const validateTime = (value: unknown) => {
-  if (!value || typeof value !== 'string') return false
-
-  let parsed = parse(value, 'HH:mm:ss', new Date())
-  if (!isValid(parsed)) {
-    parsed = parse(value, 'HH:mm', new Date())
-  }
-
-  return isValid(parsed)
-}
+export const platformConnectionSchema = z.object({
+  profileId: z.number().min(1, 'Profile ID is required'),
+  connectionId: z.number().min(1, 'Connection ID is required'),
+})
 
 export const createPostSchema = z.object({
-  content: z.string().min(1, 'Content is required').max(500),
+  content: z.string()
+    .min(1, 'Content is required')
+    .max(500, 'Content must be less than 500 characters'),
 
-  profileIds: z.preprocess((val) => {
-    if (typeof val === 'string') return JSON.parse(val).map((id: string | number) => Number(id))
+  platforms: z.preprocess((val) => {
+    if (typeof val === 'string') {
+      return JSON.parse(val).map((item: any) => ({
+        profileId: Number(item.profileId),
+        connectionId: Number(item.connectionId)
+      }))
+    }
     return val
-  }, z.array(z.number().min(1, 'Profile ID is required'))),
+  }, z.array(platformConnectionSchema).min(1, 'At least one platform connection is required')),
 
-  socialIds: z.preprocess((val) => {
-    if (typeof val === 'string')
-      return JSON.parse(val).map((id: string | number) => Number(id))
-    return val
-  }, z.array(z.number()).min(1, 'At least one social connection is required')),
+  scheduledAt: z.preprocess((val) => {
+    if (!val || val === '') return new Date()
+    if (typeof val === 'string') return parseISO(val)
+    if (val instanceof Date) return val
+    return new Date()
+  }, z.date().refine(isValid, { message: 'Invalid date-time format' })),
 
-  scheduledDate: z.preprocess((val) => {
-    if (!val || val === '') return new Date(getPeruDate())
-    if (typeof val === 'string' || typeof val === 'number' || val instanceof Date)
-      return new Date(val)
-    return new Date(getPeruDate())
-  }, z.date()),
-
-  scheduledTime: z.preprocess((val) => {
-    if (!val || val === '') return getPeruTime()
-    return val
-  }, z.string().refine(validateTime, {
-    message: 'Invalid time format (HH:MM or HH:MM:SS)',
-  })),
+  publishNow: z.boolean().optional().default(false),
 })
 
 export const updatePostSchema = createPostSchema.partial()
