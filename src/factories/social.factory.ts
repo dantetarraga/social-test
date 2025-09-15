@@ -1,22 +1,40 @@
-import { TikTokService } from "@/services";
-import { FacebookService } from "@/services/social/platforms/facebook.service";
-import { InstagramService } from "@/services/social/platforms/instagram.service";
+import { SocialPlatformService } from "@/abstracts/social-platform.service";
+import { FacebookService } from "@/services/platforms/facebook.service";
+import { InstagramService } from "@/services/platforms/instagram.service";
+import { TikTokService } from "@/services/platforms/tiktok.service";
+import { YoutubeService } from "@/services/platforms/youtube.service";
 
-import { YoutubeService } from "@/services/social/platforms/youtube.service";
 import { SocialType } from "@/types";
 import Boom from "@hapi/boom";
 
-const serviceRegistry = {
-  [SocialType.TIKTOK]: TikTokService,
-  [SocialType.YOUTUBE]: YoutubeService,
-  [SocialType.FACEBOOK]: FacebookService,
-  [SocialType.INSTAGRAM]: InstagramService,
-}
-
 export class SocialServiceFactory {
-  static createService(socialType: SocialType): InstanceType<typeof serviceRegistry[SocialType]> {
-    const ServiceClass = serviceRegistry[socialType]
-    if (!ServiceClass) throw Boom.badRequest(`Unsupported social type: ${socialType}`)
-    return new ServiceClass()
+  private static instances: Map<SocialType, SocialPlatformService> = new Map()
+
+  static createService(socialType: SocialType): SocialPlatformService {
+    if (this.instances.has(socialType)) {
+      return this.instances.get(socialType)!
+    }
+
+    let service: SocialPlatformService
+
+    switch (socialType) {
+      case SocialType.TIKTOK:
+        service = new TikTokService()
+        break
+      case SocialType.FACEBOOK:
+        service = new FacebookService()
+        break
+      case SocialType.INSTAGRAM:
+        service = new InstagramService()
+        break
+      case SocialType.YOUTUBE:
+        service = new YoutubeService()
+        break
+      default:
+        throw Boom.badRequest(`Unsupported social platform: ${socialType}`)
+    }
+
+    this.instances.set(socialType, service)
+    return service
   }
 }
