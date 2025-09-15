@@ -1,8 +1,8 @@
 import axios from "axios"
 import { SocialType } from "@/types"
-import { SocialAuthService } from "../../../abstracts/social.service"
+import { SocialPlatformService } from "@/abstracts/social-platform.service"
 
-export class FacebookService extends SocialAuthService {
+export class FacebookService extends SocialPlatformService {
   protected authUrl = "https://www.facebook.com/v23.0/dialog/oauth"
   protected tokenUrl = "https://graph.facebook.com/v23.0/oauth/access_token"
 

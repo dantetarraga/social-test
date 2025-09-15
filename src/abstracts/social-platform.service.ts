@@ -1,7 +1,4 @@
-// services/social/SocialAuthService.ts
-import { SocialType } from "@/types"
-
-export abstract class SocialAuthService {
+export abstract class SocialPlatformService {
   protected abstract clientId: string
   protected abstract clientSecret: string
   protected abstract redirectUri: string

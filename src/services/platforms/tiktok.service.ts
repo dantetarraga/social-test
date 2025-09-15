@@ -1,9 +1,9 @@
 import axios from "axios"
 import { SocialType } from "@/types"
 import Boom from "@hapi/boom"
-import { SocialAuthService } from "@/abstracts/social.service"
+import { SocialPlatformService } from "@/abstracts/social-platform.service"
 
-export class TiktokService extends SocialAuthService {
+export class TiktokService extends SocialPlatformService {
   protected authUrl = "https://www.tiktok.com/v2/auth/authorize/"
   protected tokenUrl = "https://open.tiktokapis.com/v2/oauth/token/"
   
