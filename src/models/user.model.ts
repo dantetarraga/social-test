@@ -1,6 +1,6 @@
-import { ROLE } from '@/types/user.types'
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 import { Profile } from './profile.model'
+import { ROLE } from '@/types'
 
 @Entity()
 export class User {

@@ -15,7 +15,7 @@ import {
   ResetPasswordSchema,
   AuthResponseSchema
 } from '@/schemas/auth.schemas'
-import { TokenPayload } from '@/types/auth.types'
+import { TokenPayload } from '@/types'
 
 class AuthService {
   private userRepo: Repository<User>

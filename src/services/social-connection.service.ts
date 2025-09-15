@@ -2,8 +2,8 @@ import { Repository } from 'typeorm'
 import Boom from '@hapi/boom'
 
 import { Profile, SocialConnection } from '@/models'
-import { SocialConnectionDTO } from '@/types'
 import { AppDataSource } from '@/config/database'
+import { SocialConnectionData } from '@/types/social.types'
 
 class SocialConnectionService {
   private connectionRepo: Repository<SocialConnection>
@@ -14,7 +14,7 @@ class SocialConnectionService {
     this.profileRepo = AppDataSource.getRepository(Profile)
   }
 
-  async saveConnection(profileId: number, data: SocialConnectionDTO): Promise<SocialConnection> {
+  async saveConnection(profileId: number, data: SocialConnectionData): Promise<SocialConnection> {
     const profile = await this.profileRepo.findOne({
       where: { id: profileId },
       relations: ['user'],
