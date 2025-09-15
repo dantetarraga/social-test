@@ -6,10 +6,10 @@ class SocialAuthController {
   static async generateAuthUrl(req: Request, res: Response): Promise<Response> {
     const { profileId, platform } = req.body
 
-    const socialService = SocialServiceFactory.createService(platform as SocialType)
+    const socialAuthService = SocialServiceFactory.createService(platform as SocialType)
     
     const state = `${Math.random().toString(36).substring(2)}-${profileId}`
-    const authUrl = socialService.generateAuthUrl(state)
+    const authUrl = socialAuthService.generateAuthUrl(state)
 
     return res.status(200).json({
       success: true,
@@ -20,15 +20,18 @@ class SocialAuthController {
 
   static async handleCallback(req: Request, res: Response): Promise<Response> {
     const { platform } = req.params
-    const { code } = req.query
+    const { code, state } = req.query
+    const profileId = Number((state as string).split('-')[1])
 
-    const socialService = SocialServiceFactory.createService(platform as SocialType)
-    const connectionData = await socialService.callback(code as string)
+    const socialAuthService = SocialServiceFactory.createService(platform as SocialType)
+    const connectionData = await socialAuthService.callback(code as string)
+
+    const savedConnection = await socialAuthService.saveConnection(profileId, connectionData)
 
     return res.status(200).json({
       success: true,
-      data: connectionData,
-      message: `${platform} authentication successful`,
+      data: savedConnection,
+      message: `${platform} connected successfully`,
     })
   }
 
