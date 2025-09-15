@@ -85,7 +85,6 @@ class ProfileService {
 
     const connections = await this.socialConnectionRepo.find({
       where: { profile: { id: profileId } },
-      relations: ['profile'],
       order: { createdAt: 'DESC' }
     })
     

@@ -1,10 +1,5 @@
 import { Request, Response } from 'express'
 import { ProfileService } from '@/services'
-import {
-  createProfileSchema,
-  updateProfileSchema,
-  profileIdSchema,
-} from '@/schemas/profile.schemas'
 
 const profileService = new ProfileService()
 
@@ -38,6 +33,9 @@ class ProfileController {
     const user = req.user
     const { profileId } = req.params
 
+    console.log(profileId)
+    console.log(user!.id)
+
     await profileService.deleteProfile(user!.id, Number(profileId))
 
     return res.status(200).json({
@@ -65,11 +63,16 @@ class ProfileController {
     })
   }
 
-  static async getProfile(req: Request, res: Response): Promise<Response> {
+  static async getProfileById(req: Request, res: Response): Promise<Response> {
     const user = req.user
     const { profileId } = req.params
 
+    console.log(profileId)
+    console.log(user!.id)
+
     const response = await profileService.getProfileById(user!.id, Number(profileId))
+
+    console.log(response)
 
     return res.status(200).json({
       success: true,
