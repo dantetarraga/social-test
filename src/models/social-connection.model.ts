@@ -1,4 +1,11 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm'
 import { Profile } from './profile.model'
 import { SocialType } from '@/types'
 import { PageConnection } from './page-connection.model'
@@ -12,7 +19,7 @@ export class SocialConnection {
   socialType!: SocialType
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  socialAccountId!: string  
+  socialAccountId!: string
 
   @Column({ type: 'varchar', length: 500 })
   token!: string
@@ -32,9 +39,16 @@ export class SocialConnection {
   @Column({ type: 'varchar', length: 500, nullable: true })
   scope!: string
 
-  @ManyToOne(() => Profile, (profile) => profile.connections, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Profile, (profile) => profile.connections, {
+    onDelete: 'CASCADE',
+  })
   profile!: Profile
 
-  @OneToMany(() => PageConnection, (page) => page.socialConnection, { cascade: true })
+  @OneToMany(() => PageConnection, (page) => page.socialConnection, {
+    cascade: true,
+  })
   pages?: PageConnection[]
+
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt!: Date
 }
