@@ -1,8 +1,8 @@
-import { SocialServiceFactory } from '@/factories/social.factory'
-import { SocialType } from '@/types'
 import { Request, Response } from 'express'
+import { SocialServiceFactory } from '@/factories'
+import { SocialType } from '@/types'
 
-class SocialController {
+class SocialAuthController {
   static async generateAuthUrl(req: Request, res: Response): Promise<Response> {
     const { platform } = req.params 
     const { profileId } = req.body
@@ -54,4 +54,4 @@ class SocialController {
   }
 }
 
-export default SocialController
+export default SocialAuthController
