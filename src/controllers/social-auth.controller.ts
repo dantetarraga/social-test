@@ -4,8 +4,7 @@ import { SocialType } from '@/types'
 
 class SocialAuthController {
   static async generateAuthUrl(req: Request, res: Response): Promise<Response> {
-    const { platform } = req.params 
-    const { profileId } = req.body
+    const { profileId, platform } = req.body
 
     const socialService = SocialServiceFactory.createService(platform as SocialType)
     

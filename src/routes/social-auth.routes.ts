@@ -3,7 +3,7 @@ import { Router } from "express";
 
 const router = Router()
 
-router.get('/', SocialAuthController.generateAuthUrl)
+router.post('/', SocialAuthController.generateAuthUrl)
 router.get('/:platform/callback', SocialAuthController.handleCallback)
 
 export default router
