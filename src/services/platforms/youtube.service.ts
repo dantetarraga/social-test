@@ -1,7 +1,7 @@
 // services/social/YoutubeService.ts
 import axios from "axios"
 import { SocialType } from "@/types"
-import { SocialAuthService } from "../base/social.service"
+import { SocialAuthService } from "../../../abstracts/social.service"
 
 export class YoutubeService extends SocialAuthService {
   protected authUrl = "https://accounts.google.com/o/oauth2/v2/auth"

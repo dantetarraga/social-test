@@ -1,7 +1,7 @@
 import axios from "axios"
 import { SocialType } from "@/types"
-import { SocialAuthService } from "../base/social.service"
 import Boom from "@hapi/boom"
+import { SocialAuthService } from "@/abstracts/social.service"
 
 export class TiktokService extends SocialAuthService {
   protected authUrl = "https://www.tiktok.com/v2/auth/authorize/"
@@ -13,15 +13,14 @@ export class TiktokService extends SocialAuthService {
   protected responseType = "code"
   protected scope = "user.info.basic,video.upload"
 
-  enerateAuthUrl(state: string): string {
-    const params = new URLSearchParams({
+  protected buildAuthParams(state: string): URLSearchParams {
+    return new URLSearchParams({
       client_key: this.clientId,
       redirect_uri: this.redirectUri,
-      response_type: 'code',
+      response_type: this.responseType,
       scope: this.scope,
       state,
     })
-    return `${this.authUrl}?${params.toString()}`
   }
 
   async callback(code: string): Promise<any> {

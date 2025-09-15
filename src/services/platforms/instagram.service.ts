@@ -2,7 +2,7 @@
 import axios from "axios"
 import { SocialType } from "@/types"
 import Boom from "@hapi/boom"
-import { SocialAuthService } from "../base/social.service"
+import { SocialAuthService } from "../../../abstracts/social.service"
 
 export class InstagramService extends SocialAuthService {
   protected authUrl = "https://api.instagram.com/oauth/authorize"

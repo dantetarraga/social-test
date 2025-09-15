@@ -10,16 +10,20 @@ export abstract class SocialAuthService {
   protected abstract scope: string
 
   generateAuthUrl(state: string): string {
-    const params = new URLSearchParams({
+    const params = this.buildAuthParams(state)
+    return `${this.authUrl}?${params.toString()}`
+  }
+
+  protected buildAuthParams(state: string): URLSearchParams {
+    return new URLSearchParams({
       client_id: this.clientId,
       redirect_uri: this.redirectUri,
       response_type: this.responseType,
       scope: this.scope,
       state,
     })
-    return `${this.authUrl}?${params.toString()}`
   }
-
+  
   abstract callback(code: string): Promise<any>
   abstract uploadVideo(videoPath: string): Promise<any>
   abstract uploadImage(imagePath: string): Promise<any>

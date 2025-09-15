@@ -1,6 +1,6 @@
 import axios from "axios"
 import { SocialType } from "@/types"
-import { SocialAuthService } from "../base/social.service"
+import { SocialAuthService } from "../../../abstracts/social.service"
 
 export class FacebookService extends SocialAuthService {
   protected authUrl = "https://www.facebook.com/v23.0/dialog/oauth"
