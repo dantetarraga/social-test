@@ -9,12 +9,15 @@ export const createProfileSchema = z.object({
 export const updateProfileSchema = createProfileSchema.partial()
 
 export const profileIdSchema = z.object({
-  id: z.string().transform(val => parseInt(val, 10)).pipe(z.number().positive('Profile ID must be a positive number'))
+  profileId: z.coerce
+    .number()
+    .positive('Profile ID must be a positive number'),
 })
 
-export const connectionParamsSchema = z.object({
-  profileId: z.string().transform(val => parseInt(val, 10)).pipe(z.number().positive('Profile ID must be a positive number')),
-  connectionId: z.string().transform(val => parseInt(val, 10)).pipe(z.number().positive('Connection ID must be a positive number'))
+export const connectionParamsSchema = profileIdSchema.extend({
+  connectionId: z.coerce
+    .number()
+    .positive('Connection ID must be a positive number'),
 })
 
 export type CreateProfileSchema = z.infer<typeof createProfileSchema>
