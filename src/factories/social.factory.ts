@@ -1,8 +1,5 @@
 import { SocialPlatformService } from "@/abstracts/social-platform.service";
-import { FacebookService } from "@/services/platforms/facebook.service";
-import { InstagramService } from "@/services/platforms/instagram.service";
-import { TikTokService } from "@/services/platforms/tiktok.service";
-import { YoutubeService } from "@/services/platforms/youtube.service";
+import { FacebookService, InstagramService, TikTokService, YouTubeService } from "@/services";
 
 import { SocialType } from "@/types";
 import Boom from "@hapi/boom";
@@ -28,7 +25,7 @@ export class SocialServiceFactory {
         service = new InstagramService()
         break
       case SocialType.YOUTUBE:
-        service = new YoutubeService()
+        service = new YouTubeService()
         break
       default:
         throw Boom.badRequest(`Unsupported social platform: ${socialType}`)

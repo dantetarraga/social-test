@@ -3,7 +3,7 @@ import axios from "axios"
 import { SocialType } from "@/types"
 import { SocialPlatformService } from "@/abstracts/social-platform.service"
 
-export class YoutubeService extends SocialPlatformService  {
+class YoutubeService extends SocialPlatformService  {
   protected authUrl = "https://accounts.google.com/o/oauth2/v2/auth"
   protected tokenUrl = "https://oauth2.googleapis.com/token"
 
