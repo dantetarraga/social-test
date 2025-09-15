@@ -38,7 +38,7 @@
  *                 type: boolean
  *                 example: false
  *                 description: Publicar inmediatamente
- *               files:
+ *               media:
  *                 type: array
  *                 items:
  *                   type: string
@@ -136,7 +136,7 @@
  *                 format: date-time
  *               publishNow:
  *                 type: boolean
- *               files:
+ *               media:
  *                 type: array
  *                 items:
  *                   type: string
@@ -158,3 +158,120 @@
  *                 data:
  *                   $ref: '#/components/schemas/Post'
  */
+
+
+/**
+ * @swagger
+ * /api/posts/{postId}:
+ *   delete:
+ *     summary: Eliminar publicación
+ *     tags: [Posts]
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: ID de la publicación
+ *     responses:
+ *       200:
+ *         description: Publicación eliminada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Post deleted successfully
+ */      
+
+
+/**
+ * @swagger
+ * /api/posts:
+ *   get:
+ *     summary: Obtener todas las publicaciones del usuario
+ *     tags: [Posts]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Número de página
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Publicaciones por página
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [SCHEDULED, PUBLISHED, FAILED, DRAFT]
+ *         description: Filtrar por estado
+ *       - in: query
+ *         name: profileId
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Filtrar por perfil
+ *     responses:
+ *       200:
+ *         description: Lista de publicaciones
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Posts retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     posts:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Post'
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         page:
+ *                           type: integer
+ *                           example: 1
+ *                         limit:
+ *                           type: integer
+ *                           example: 10
+ *                         total:
+ *                           type: integer
+ *                           example: 25
+ *                         totalPages:
+ *                           type: integer
+ *                           example: 3
+ *                         hasNext:
+ *                           type: boolean
+ *                           example: true
+ *                         hasPrev:
+ *                           type: boolean
+ *                           example: false
+ *       400:
+ *         description: Parámetros inválidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+
