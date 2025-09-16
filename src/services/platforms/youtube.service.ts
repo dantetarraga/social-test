@@ -1,7 +1,7 @@
-// services/social/YoutubeService.ts
 import axios from "axios"
-import { SocialType } from "@/types"
+import { SocialConnectionData, SocialType } from "@/types"
 import { SocialPlatformService } from "@/abstracts/social-platform.service"
+import Boom from "@hapi/boom"
 
 class YoutubeService extends SocialPlatformService  {
   protected authUrl = "https://accounts.google.com/o/oauth2/v2/auth"
@@ -22,7 +22,9 @@ class YoutubeService extends SocialPlatformService  {
     return `${baseUrl}&${extraParams.toString()}`
   }
 
-  async callback(code: string): Promise<any> {
+  async callback(code: string): Promise<SocialConnectionData> {
+    console.log("[YouTube] Callback with code:", this.redirectUri)
+
     const { data } = await axios.post(
       this.tokenUrl,
       null,
@@ -37,7 +39,7 @@ class YoutubeService extends SocialPlatformService  {
       }
     )
 
-    if (!data) throw new Error("Error obtaining YouTube token")
+    if (!data) throw Boom.badImplementation("Failed to get access token from YouTube")
 
     return {
       socialType: SocialType.YOUTUBE,
