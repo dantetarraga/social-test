@@ -6,8 +6,10 @@ class SocialAuthController {
   static async generateAuthUrl(req: Request, res: Response): Promise<Response> {
     const { profileId, platform } = req.body
 
-    const socialAuthService = SocialServiceFactory.createService(platform as SocialType)
-    
+    const socialAuthService = SocialServiceFactory.createService(
+      platform as SocialType
+    )
+
     const state = `${Math.random().toString(36).substring(2)}-${profileId}`
     const authUrl = socialAuthService.generateAuthUrl(state)
 
@@ -19,30 +21,33 @@ class SocialAuthController {
   }
 
   static async handleCallback(req: Request, res: Response): Promise<Response> {
-    try {
     const { platform } = req.params
     const { code, state } = req.query
     const profileId = Number((state as string).split('-')[1])
 
-    const socialAuthService = SocialServiceFactory.createService(platform as SocialType)
-    const connectionData = await socialAuthService.callback(code as string)
+    try {
+      const socialAuthService = SocialServiceFactory.createService(
+        platform as SocialType
+      )
+      const connectionData = await socialAuthService.callback(code as string)
 
-    console.log('Connection Data:', connectionData) 
+      console.log('Connection Data:', connectionData)
 
-    const savedConnection = await socialAuthService.saveConnection(profileId, connectionData)
+      const savedConnection = await socialAuthService.saveConnection(
+        profileId,
+        connectionData
+      )
 
-    return res.status(200).json({
-      success: true,
-      data: savedConnection,
-      message: `${platform} connected successfully`,
-    })
-    } catch (error) {
-      console.error('Error in social auth callback:', error)  
-      return res.status(500).json({
-        success: false,
-        message: 'Error during social auth callback',
-        error: (error as Error).message,
+      return res.status(200).json({
+        success: true,
+        data: savedConnection,
+        message: `${platform} connected successfully`,
       })
+    } catch (error) {
+      res.redirect(
+        `http://localhost:3000/${profileId}?error=social_auth_failed&platform=${req.params.platform}`
+      )
+      return res as Response
     }
   }
 
@@ -50,8 +55,10 @@ class SocialAuthController {
     const { platform } = req.params
     const { mediaPath, mediaType } = req.body
 
-    const socialService = SocialServiceFactory.createService(platform as SocialType)
-    
+    const socialService = SocialServiceFactory.createService(
+      platform as SocialType
+    )
+
     let result
     if (mediaType === 'video') {
       result = await socialService.uploadVideo?.(mediaPath)
