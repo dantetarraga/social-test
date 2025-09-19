@@ -30,9 +30,6 @@ class SocialAuthController {
         platform as SocialType
       )
       const connectionData = await socialAuthService.callback(code as string)
-
-      console.log('Connection Data:', connectionData)
-
       const savedConnection = await socialAuthService.saveConnection(
         profileId,
         connectionData
