@@ -19,12 +19,15 @@ class SocialAuthController {
   }
 
   static async handleCallback(req: Request, res: Response): Promise<Response> {
+    try {
     const { platform } = req.params
     const { code, state } = req.query
     const profileId = Number((state as string).split('-')[1])
 
     const socialAuthService = SocialServiceFactory.createService(platform as SocialType)
     const connectionData = await socialAuthService.callback(code as string)
+
+    console.log('Connection Data:', connectionData) 
 
     const savedConnection = await socialAuthService.saveConnection(profileId, connectionData)
 
@@ -33,6 +36,14 @@ class SocialAuthController {
       data: savedConnection,
       message: `${platform} connected successfully`,
     })
+    } catch (error) {
+      console.error('Error in social auth callback:', error)  
+      return res.status(500).json({
+        success: false,
+        message: 'Error during social auth callback',
+        error: (error as Error).message,
+      })
+    }
   }
 
   static async uploadMedia(req: Request, res: Response): Promise<Response> {
